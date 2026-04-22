@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - NKD Community</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: #f5f5f5;
+      }
+
+      .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .popup-content {
+        background: linear-gradient(135deg, #ffffff, #e6e6e6);
+        padding: 20px;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 22rem;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .popup-content h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #333;
+        text-align: center;
+      }
+
+      .popup-content label {
+        display: block;
+        text-align: left;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+
+      .popup-content label.required::after {
+        content: " *";
+        color: red;
+      }
+
+      .popup-content input[type="text"],
+      .popup-content input[type="date"] {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+
+      .popup-content button {
+        width: 100%;
+        padding: 10px 0;
+        margin-top: 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .popup-content .green {
+        background-color: #4caf50;
+        color: white;
+      }
+      .popup-content .purple {
+        background-color: #6a0dad;
+        color: white;
+      }
+      .popup-content .blue {
+        background-color: #2196f3;
+        color: white;
+      }
+
+      .leftSideNav {
+        position: fixed;
+        z-index: 2000;
+        display: none;
+      }
+
+      .leftSideNav a {
+        background-color: #575757;
+        padding: 15px;
+        text-decoration: none;
+        font-size: 18px;
+        color: white;
+        display: flex;
+        transition: 0.3s;
+        text-align: left;
+        cursor: pointer;
+        align-items: center;
+        gap: 5px;
+        width: 86%;
+      }
+
+      .leftSideNav a:hover {
+        background-color: #111;
+      }
+
+      .leftSideNav-closebtn {
+        position: absolute !important;
+        top: 0px !important;
+        right: 5px !important;
+        font-size: 25px !important;
+        cursor: pointer !important;
+        text-align: right !important;
+        padding-right: 15px !important;
+      }
+
+      /* Child menu styling */
+      .leftSideNav-SubMenu {
+        display: none;
+        padding-left: 20px;
+        background-color: #575757;
+      }
+
+      .leftSideNav-SubMenu a {
+        font-size: 16px;
+      }
+
+      /* leftSideNav-contentContainer content */
+      .leftSideNav-contentContainer {
+        transition: margin-left 0.3s;
+        text-align: center;
+        position: relative;
+        z-index: 1000;
+      }
+
+      /* Open menu button */
+      .leftSideNav-menuBtn {
+        text-align: left !important;
+        font-size: 24px !important;
+        cursor: pointer !important;
+        padding: 10px 15px !important;
+        background-color: #333 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 5px !important;
+        margin-top: -15px !important;
+        margin-left: -10px !important;
+        height: 50px !important;
+      }
+
+      /* Form styling */
+      .leftSideNav-itemContainer {
+        display: none;
+        margin-top: 20px;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 8px;
+      }
+
+      .arrow {
+        float: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="popup" id="adminHomeContainer">
+      <div class="popup-content scrollable-content">
+        <div>
+          <button onclick="loginUser('bbb')">Login as bbb</button>
+          <button onclick="loginUser('aaa')">Login as aaa</button>
+          <button onclick="loginUser('ccc')">Login as ccc</button>
+        </div>
+        <!-- Nav Menu Bar -->
+        <button
+          class="leftSideNav-menuBtn"
+          onclick="openLeftNavBar('leftSideNavAdmin', 'NKD Community')"
+        >
+          ☰ NKD Community
+        </button>
+
+        <div id="leftSideNavAdmin" class="leftSideNav">
+          <a
+            id="navAdminSale"
+            href="#adminSale"
+            class="leftNavBar-dynamicNavLink"
+            data-form="adminSale"
+            >Admin Sale</a
+          >
+          <a
+            id="navAdminProduction"
+            href="#adminProduction"
+            class="leftNavBar-dynamicNavLink"
+            data-form="adminProduction"
+            >Production</a
+          >
+          <a
+            href="#adminOrderList"
+            id="navAdminOrderList"
+            class="leftNavBar-dynamicNavLink"
+            data-form="adminOrderList"
+            >Order List</a
+          >
+          <a
+            href="#adminKhataBook"
+            id="navAdminKhataBook"
+            class="leftNavBar-dynamicNavLink"
+            data-form="adminKhataBook"
+            >Khata Book</a
+          >
+          <a
+            href="#adminDailyInput"
+            id="navAdminDailyInput"
+            class="leftNavBar-dynamicNavLink"
+            data-form="adminDailyInput"
+            >Admin Daily Input</a
+          >
+
+          <!-- Library Section -->
+          <a
+            href="#librarySubmenu"
+            onclick="toggleLeftNavBarSubMenu('librarySubmenu')"
+          >
+            Library <span class="arrow">▼</span>
+          </a>
+
+          <div id="librarySubmenu" class="leftSideNav-SubMenu">
+            <a
+              href="#libIssueBook"
+              class="leftNavBar-dynamicNavLink"
+              data-form="libIssueBook"
+              >Issue Book</a
+            >
+            <a
+              href="#libMembership"
+              class="leftNavBar-dynamicNavLink"
+              data-form="libMembership"
+              >Membership</a
+            >
+          </div>
+        </div>
+
+        <div class="leftSideNav-contentContainer">
+          <div
+            id="adminSale"
+            style="display: block"
+            class="popup-content leftSideNav-itemContainer"
+          >
+            Inside sale
+          </div>
+
+          <div
+            id="adminProduction"
+            class="popup-content scrollable-content leftSideNav-itemContainer"
+          >
+            inside production
+          </div>
+
+          <div
+            id="adminOrderList"
+            class="popup-content scrollable-content leftSideNav-itemContainer"
+          >
+            inside admin order list
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showLeftNavBarItemContainer(
+        formId,
+        leftSideNavId,
+        leftSideNavItemContainerId,
+        menuLabel,
+        callBack
+      ) {
+        document
+          .querySelectorAll(`.${leftSideNavItemContainerId}`)
+          .forEach((form) => {
+            form.style.display = "none";
+          });
+
+        const form = document.getElementById(formId);
+        if (form) form.style.display = "block";
+
+        closeLeftNavBar(leftSideNavId, menuLabel);
+
+        if (typeof callBack === "function") {
+          callBack(formId);
+        }
+      }
+
+      function closeLeftNavBar(leftSideNavId, menuLabel) {
+        let nav = document.getElementById(leftSideNavId);
+        let menuBtn = document.querySelector(".leftSideNav-menuBtn");
+
+        if (nav) {
+          nav.style.width = "0";
+          nav.style.display = "none";
+          menuBtn.innerHTML = `☰ ${menuLabel}`;
+          menuBtn.setAttribute(
+            "onclick",
+            `openLeftNavBar('${leftSideNavId}', '${menuLabel}')`
+          );
+        }
+      }
+
+      function openLeftNavBar(leftSideNavId, menuLabel) {
+        let nav = document.getElementById(leftSideNavId);
+        let menuBtn = document.querySelector(".leftSideNav-menuBtn");
+
+        if (nav) {
+          nav.style.display = "contents";
+
+          if (window.innerWidth <= 768) {
+            nav.style.width = "80%";
+          } else {
+            nav.style.width = "60%";
+          }
+
+          menuBtn.innerHTML = `× ${menuLabel}`;
+          menuBtn.setAttribute(
+            "onclick",
+            `closeLeftNavBar('${leftSideNavId}', '${menuLabel}')`
+          );
+        }
+      }
+
+      function toggleLeftNavBarSubMenu(submenuId) {
+        const submenu = document.getElementById(submenuId);
+        if (submenu) {
+          submenu.style.display =
+            submenu.style.display === "block" ? "none" : "block";
+        }
+      }
+
+      function navCallBackMethod(id) {
+        console.log("Loaded content for:", id);
+      }
+
+      function loginUser(userRole) {
+        console.log("Logged in as:", userRole);
+
+        const userAccessMap = {
+          aaa: ["navAdminSale", "navAdminProduction", "navAdminOrderList"],
+          bbb: [
+            "navAdminProduction",
+            "navAdminOrderList",
+            "navAdminKhataBook",
+            "navLibIssueBook",
+          ],
+          ccc: [
+            "navAdminOrderList",
+            "navAdminKhataBook",
+            "navAdminDailyInput",
+            "navLibMembership",
+          ],
+        };
+
+        const submenuMap = {
+          librarySubmenu: ["navLibIssueBook", "navLibMembership"],
+        };
+        debugger;
+        // Hide all dynamic nav links
+        document
+          .querySelectorAll(".leftNavBar-dynamicNavLink")
+          .forEach((el) => {
+            el.style.display = "none";
+          });
+
+        // Show only allowed nav links
+        const allowedIds = userAccessMap[userRole] || [];
+        allowedIds.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = "flex";
+        });
+
+        // Show/hide submenu based on whether any child is visible
+        Object.entries(submenuMap).forEach(([submenuId, childIds]) => {
+          const shouldShow = childIds.some((id) => allowedIds.includes(id));
+          const submenu = document.getElementById(submenuId);
+          if (submenu) {
+            submenu.style.display = shouldShow ? "block" : "none";
+          }
+        });
+
+        // Optionally open sidebar
+        openLeftNavBar("leftSideNavAdmin", "NKD Community");
+
+        // Hide all form containers initially
+        document
+          .querySelectorAll(".leftSideNav-itemContainer")
+          .forEach((div) => {
+            div.style.display = "none";
+          });
+
+        // Auto-open first allowed section
+        const firstVisibleLinkId = allowedIds.find((id) => {
+          const el = document.getElementById(id);
+          return el && el.style.display !== "none";
+        });
+
+        if (firstVisibleLinkId) {
+          const el = document.getElementById(firstVisibleLinkId);
+          const formId = el?.getAttribute("data-form");
+          if (formId) {
+            showLeftNavBarItemContainer(
+              formId,
+              "leftSideNavAdmin",
+              "leftSideNav-itemContainer",
+              el.innerText || el.textContent,
+              navCallBackMethod
+            );
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

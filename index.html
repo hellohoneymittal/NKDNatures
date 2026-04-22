@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NKD Community</title>
+
+    <link rel="stylesheet" href="StylesCommon.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div class="primaryContainerDiv">
+      <div id="loadingSpinner" style="display: none">
+        <div class="spinner"></div>
+      </div>
+
+      <div class="infoPopup" id="successPopup">
+        <div class="infoPopup-content">
+          <div class="infoPopup-icon success"></div>
+          <h2 class="infoPopup-heading success">Success!</h2>
+          <div id="successMessage" class="infoPopup-message"></div>
+          <button class="green" onclick="CLOSE_INFO_POPUP('successPopup')">
+            OKAY
+          </button>
+        </div>
+      </div>
+
+      <div class="infoPopup" id="errorPopup">
+        <div class="infoPopup-content">
+          <div class="infoPopup-icon error"></div>
+          <h2 class="infoPopup-heading error">Error!</h2>
+          <div id="errorMessage" class="infoPopup-message"></div>
+          <button class="red" onclick="CLOSE_INFO_POPUP('errorPopup')">
+            TRY AGAIN
+          </button>
+        </div>
+      </div>
+
+      <div class="infoPopup" id="infoPopup">
+        <div class="infoPopup-content">
+          <div class="infoPopup-icon info"></div>
+          <h2 class="infoPopup-heading info">Information</h2>
+          <div id="infoMessage" class="infoPopup-message"></div>
+          <button class="blue" onclick="CLOSE_INFO_POPUP('infoPopup')">
+            OKAY
+          </button>
+        </div>
+      </div>
+
+      <div class="infoPopup" id="confirmationPopup">
+        <div class="infoPopup-content">
+          <div class="infoPopup-icon confirmation"></div>
+          <div class="infoPopup-message" id="confirmationMessage"></div>
+          <div class="button-row">
+            <button class="red" id="confirmationNoButton">NO</button>
+            <button class="green" id="confirmationYesButton">YES</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="infoPopup" id="confirmationGridPopup">
+        <div class="infoPopup-content">
+          <div class="infoPopup-icon confirmation"></div>
+
+          <!-- Status Text Area -->
+          <div id="confirmationGridStatusText" class="heading"></div>
+
+          <!-- Table Grid Container -->
+          <div
+            id="confirmationGridContainer"
+            class="collection-table-container scrollable-content-table"
+            style="margin-top: 10px"
+          >
+            <table id="confirmationGridTable">
+              <thead id="confirmationGridTHead" class="table-header">
+                <!-- Table headers will be dynamically generated here -->
+              </thead>
+              <tbody id="confirmationGridTBody">
+                <!-- Table rows will be dynamically generated here -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Buttons for Confirmation -->
+          <div class="button-row">
+            <button class="red" id="confirmationGridNoButton">NO</button>
+            <button class="green" id="confirmationGridYesButton">YES</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup" id="billContainer">
+        <div class="popup-content">
+          <h2>Sale input successfully</h2>
+          <div class="button-row">
+            <button
+              class="purple"
+              id="downloadPdfButton"
+              style="margin-top: 10px"
+            >
+              Download as PDF
+            </button>
+            <button
+              class="blue"
+              style="margin-top: 10px"
+              onclick="shareWhatsappBtnClick()"
+            >
+              Share
+            </button>
+            <button
+              class="green"
+              id="resetBill"
+              style="margin-top: 10px"
+              onclick="resetBill()"
+            >
+              Ok
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup" style="display: flex" id="mainContainer">
+        <div class="popup-content">
+          <div class="popup-content">
+            <div class="video-container" id="videoContainer">
+              <iframe
+                loading="lazy"
+                src="https://www.youtube.com/embed/_NnJXuqfG74"
+                title="YouTube video player"
+                allow="
+                  accelerometer;
+                  autoplay;
+                  clipboard-write;
+                  encrypted-media;
+                  gyroscope;
+                  picture-in-picture;
+                "
+                allowfullscreen
+              >
+              </iframe>
+            </div>
+          </div>
+
+          <div class="radio-container">
+            <div
+              style="
+                display: flex;
+                justify-content: center;
+                gap: 2rem;
+                margin-bottom: 10px;
+              "
+            >
+              <div class="options">
+                <input
+                  type="radio"
+                  id="permissionRadioUser"
+                  name="permission"
+                  value="User"
+                  class="custom-radio required"
+                  checked
+                />
+                <label for="permissionRadioUser" class="custom-label"
+                  >User</label
+                >
+              </div>
+              <div class="options">
+                <input
+                  type="radio"
+                  id="permissionRadioAdmin"
+                  name="permission"
+                  value="Admin"
+                  class="custom-radio"
+                />
+                <label for="permissionRadioAdmin" class="custom-label"
+                  >Admin</label
+                >
+              </div>
+            </div>
+
+            <div id="password-field">
+              <input
+                type="text"
+                id="passwordInputAdmin"
+                placeholder="Enter Password"
+              />
+            </div>
+            <button class="green" onclick="viewHomePage()">
+              See Product List
+            </button>
+            <!-- <button class="green" onclick="showWhatsapp()">Testing</button> -->
+          </div>
+        </div>
+      </div>
+
+      <div class="popup" id="adminHomeContainer">
+        <div class="popup-content">
+          <!-- Nav Menu Bar -->
+          <button
+            class="leftSideNav-menuBtn"
+            onclick="openLeftNavBar('leftSideNavAdmin', 'NKD Community')"
+          >
+            ☰ NKD Community
+          </button>
+
+          <div id="leftSideNavAdmin" class="leftSideNav">
+            <a
+              href="#adminSale"
+              class="leftNavBar-dynamicNavLink"
+              data-form="adminSale"
+              >Admin Sale</a
+            >
+
+            <a
+              href="#adminProduction"
+              class="leftNavBar-dynamicNavLink"
+              data-form="adminProduction"
+              >Production</a
+            >
+
+            <a
+              href="#adminOrderList"
+              class="leftNavBar-dynamicNavLink"
+              data-form="adminOrderList"
+              >Order List</a
+            >
+
+            <a
+              href="#adminKhataBook"
+              class="leftNavBar-dynamicNavLink"
+              data-form="adminKhataBook"
+              >Khata Book</a
+            >
+
+            <a
+              href="#adminDailyInput"
+              class="leftNavBar-dynamicNavLink"
+              data-form="adminDailyInput"
+              >Admin Daily Input</a
+            >
+
+            <!-- Library Section -->
+            <a
+              href="#librarySubmenu"
+              onclick="toggleLeftNavBarSubMenu('librarySubmenu')"
+            >
+              Library <span class="arrow">▼</span>
+            </a>
+
+            <div id="librarySubmenu" class="leftSideNav-SubMenu">
+              <a
+                href="#libIssueBook"
+                class="leftNavBar-dynamicNavLink"
+                data-form="libIssueBook"
+                >Issue Book</a
+              >
+              <a
+                href="#libMembership"
+                class="leftNavBar-dynamicNavLink"
+                data-form="libMembership"
+                >Membership</a
+              >
+            </div>
+
+            <a
+              href="#adminNKDCommunitySale"
+              class="leftNavBar-dynamicNavLink"
+              data-form="adminNKDCommunitySale"
+              >NKD Community Sale</a
+            >
+          </div>
+
+          <div class="leftSideNav-contentContainer">
+            <div
+              id="adminSale"
+              style="display: block"
+              class="popup-content scrollable-content-list leftSideNav-itemContainer"
+            >
+              <div
+                id="customerDiscountInfo"
+                style="
+                  display: none;
+                  margin-bottom: 10px;
+                  padding: 10px;
+                  border: 2px dashed #4caf50;
+                  background-color: #e8f5e9;
+                  border-radius: 8px;
+                  font-weight: bold;
+                  color: #2e7d32;
+                  text-align: center;
+                "
+              >
+                🎉 Applicable Discount: 5% Scheduled Discount
+              </div>
+
+              <div class="custom-control-row">
+                <div class="left-side-control">
+                  <div class="liveSearchContainer">
+                    <input
+                      type="text"
+                      id="adminCustName"
+                      class="liveSearch"
+                      placeholder="Customer Name..."
+                    />
+                    <button class="liveSearchClearBtn" id="adminCustNameClrBtn">
+                      &times;
+                    </button>
+                    <ul id="adminCustNameULList" class="liveSearchUL"></ul>
+                  </div>
+                </div>
+                <div class="right-side-control">
+                  <img
+                    style="height: 35px !important"
+                    src="https://imghost.net/ib/E5PegaLvH4xfUED_1729512954.png"
+                    border="0"
+                    alt="Add User"
+                    onclick="addNewUserButtonClick()"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div class="liveSearchContainer">
+                  <input
+                    type="text"
+                    id="adminItemInput"
+                    class="liveSearch"
+                    placeholder="Item..."
+                  />
+                  <button class="liveSearchClearBtn" id="adminItemInputClrBtn">
+                    &times;
+                  </button>
+                  <ul id="adminItemInputULList" class="liveSearchUL"></ul>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center">
+                <div style="flex: 1 1 35%; padding-right: 10px">
+                  <input
+                    type="text"
+                    id="adminQuantityInput"
+                    placeholder="Quantity..."
+                    inputmode="numeric"
+                    oninput="restrictToNumberWithDecimalAndNegative(this)"
+                  />
+                </div>
+                <div style="flex: 1 1 35%; padding-right: 10px">
+                  <input
+                    type="text"
+                    id="adminDisInput"
+                    inputmode="numeric"
+                    placeholder="Discount..."
+                    oninput="restrictToNumberWithDecimal(this)"
+                  />
+                </div>
+                <div
+                  style="
+                    margin-top: -10px;
+                    flex: 0 0 15%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <button
+                    class="green"
+                    id="addItemInBillBtn"
+                    onclick="addItemInBill()"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div class="sale-selected-items">
+                <h3>Selected Items</h3>
+                <div
+                  class="collection-table-container scrollable-content-table"
+                  id="production-selected-items-table"
+                  style="margin-top: 20px"
+                >
+                  <table id="adSaleTable">
+                    <thead id="adSaleTableTHead" class="table-header">
+                      <tr>
+                        <th>Action</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Disc.</th>
+                        <th>S Disc.</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adSaleTableTBody">
+                      <!-- Table rows will be dynamically generated here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div
+                style="display: flex; align-items: center; margin-bottom: 10px"
+              >
+                <div style="flex: 1 1 30%; padding-right: 10px">Payment:</div>
+                <div
+                  style="
+                    flex: 1 1 65%;
+                    padding-right: 10px;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <input
+                    type="radio"
+                    name="paymentStatus"
+                    value="paid"
+                    id="paidStatus"
+                  />
+                  Paid
+                  <input
+                    type="radio"
+                    name="paymentStatus"
+                    value="pending"
+                    id="pendingStatus"
+                  />
+                  Pending
+                </div>
+              </div>
+              <div
+                style="display: flex; align-items: center; margin-bottom: 10px"
+              >
+                <div style="flex: 1 1 30%; padding-right: 10px">Sale Type:</div>
+                <div
+                  style="
+                    flex: 1 1 65%;
+                    padding-right: 24px;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <input
+                    type="radio"
+                    name="saleType"
+                    value="Bank"
+                    id="bankSale"
+                    checked
+                  />
+                  Bank
+                  <input
+                    type="radio"
+                    name="saleType"
+                    value="Cash"
+                    id="cashSale"
+                  />
+                  Cash
+                </div>
+              </div>
+              <div>
+                <input
+                  type="input"
+                  placeholder="Comments if any..."
+                  id="commentsSaleInput"
+                />
+              </div>
+              <div class="total-row-container custom-control-row">
+                <div class="left">
+                  <button class="green" onclick="submitOrder()">
+                    Generate Bill
+                  </button>
+                </div>
+                <div class="right">
+                  <div class="total-cost" id="totalCost">Total: ₹0</div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              id="adminProduction"
+              class="popup-content scrollable-content leftSideNav-itemContainer"
+            >
+              <div class="custom-control-row">
+                <div class="left-side-control">
+                  <div class="liveSearchContainer">
+                    <input
+                      type="text"
+                      id="adminProductionInput"
+                      class="liveSearch"
+                      placeholder="Select Item..."
+                    />
+                    <button
+                      class="liveSearchClearBtn"
+                      id="adminProductionInputClrBtn"
+                    >
+                      &times;
+                    </button>
+                    <ul
+                      id="adminProductionInputULList"
+                      class="liveSearchUL"
+                    ></ul>
+                  </div>
+                </div>
+              </div>
+              <div class="control-row">
+                <div>
+                  <input type="date" id="batchDate" required />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    id="productionCountInput"
+                    placeholder="Prod Count..."
+                    pattern="[0-9]{10}"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    maxlength="11"
+                    inputmode="numeric"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="custom-control-row">
+                <div class="left-side-control">
+                  <input
+                    type="input"
+                    placeholder="Comments if any..."
+                    id="commentsInput"
+                  />
+                </div>
+
+                <div class="right-side-control" style="margin-top: -10px">
+                  <button
+                    class="green"
+                    id="productionInputBtn"
+                    onclick="productionInput()"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div
+                class="collection-table-container scrollable-content-table"
+                id="production-selected-items-table"
+                style="margin-top: 20px"
+              >
+                <table id="piTable">
+                  <thead id="piTableTHead" class="table-header">
+                    <tr>
+                      <th>Action</th>
+                      <th>Selected Item</th>
+                      <th>Batch Date</th>
+                      <th>Production Count</th>
+                      <th>Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody id="piTableTBody">
+                    <!-- Table rows will be dynamically generated here -->
+                  </tbody>
+                </table>
+              </div>
+
+              <button class="green" onclick="submitProduction()">
+                Submit Production
+              </button>
+            </div>
+
+            <div
+              id="adminOrderList"
+              class="popup-content scrollable-content leftSideNav-itemContainer"
+            >
+              <div id="adminOrderListView"></div>
+            </div>
+          </div>
+
+          <div
+            id="adminKhataBook"
+            class="popup-content scrollable-content leftSideNav-itemContainer"
+          >
+            <div class="liveSearchContainer">
+              <input
+                type="text"
+                id="kbLiveSearchInput"
+                class="liveSearch"
+                placeholder="Select Item..."
+              />
+              <button
+                class="liveSearchClearBtn"
+                id="kbLiveSearchInputClrBtn"
+                onclick="kbLiveSearchInputClrBtnClick()"
+              >
+                &times;
+              </button>
+              <ul id="kbLiveSearchInputULList" class="liveSearchUL"></ul>
+            </div>
+            <div
+              class="collection-table-container scrollable-content-table"
+              id="kbTableDiv"
+            >
+              <div class="download-icon-container">
+                <img
+                  id="cmPendingDonorDownloadBtn"
+                  src="https://cdn-thumbs.imagevenue.com/85/09/8b/ME196HF8_t.png"
+                  alt="Download Excel"
+                  class="download-icon"
+                  onclick="khataBookUserGridBtnClick('kbTable')"
+                />
+              </div>
+              <table id="kbTable">
+                <thead id="kbTableTHead" class="table-header">
+                  <!-- Table headers will be dynamically generated here -->
+                </thead>
+                <tbody id="kbTableTBody">
+                  <!-- Table rows will be dynamically generated here -->
+                </tbody>
+              </table>
+            </div>
+            <div class="custom-control-row">
+              <div class="left-side-control45">
+                <input type="text" id="kbAmountInput" placeholder="Amount..." />
+              </div>
+              <div class="right-side-control45" style="margin-top: -5px">
+                <select id="kbCashBankDdl" required>
+                  <option value="">Select</option>
+                  <option value="Bank">Bank</option>
+                  <option value="Cash">Cash</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <button class="green" onclick="submitKBAmount()">Proceed</button>
+            </div>
+          </div>
+
+          <div
+            id="adminDailyInput"
+            class="popup-content scrollable-content leftSideNav-itemContainer"
+          >
+            <div class="custom-control-row">
+              <div class="left-side-control45">Date:</div>
+              <div class="right-side-control55">
+                <input type="date" id="dailyInputDate" required />
+              </div>
+            </div>
+            <div class="custom-control-row">
+              <div class="left-side-control45">Cash Sale:</div>
+              <div class="right-side-control55">
+                <input
+                  type="text"
+                  id="adminCashSaleInput"
+                  placeholder="Case Sale..."
+                  pattern="^\d+(\.\d{0,2})?$"
+                  inputmode="numeric"
+                  oninput="
+                    this.value = this.value
+                      .replace(/[^0-9.]/g, '')
+                      .replace(/(\..*)\./g, '$1')
+                      .replace(/^(\d*\.\d{2}).*/, '$1')
+                  "
+                  required
+                />
+              </div>
+            </div>
+            <div class="custom-control-row">
+              <div class="left-side-control45">Bank Sale:</div>
+              <div class="right-side-control55">
+                <input
+                  type="text"
+                  id="adminBankSaleInput"
+                  pattern="^\d+(\.\d{0,2})?$"
+                  oninput="
+                    this.value = this.value
+                      .replace(/[^0-9.]/g, '')
+                      .replace(/(\..*)\./g, '$1')
+                      .replace(/^(\d*\.\d{2}).*/, '$1')
+                  "
+                  placeholder="Bank Sale..."
+                  inputmode="numeric"
+                  required
+                />
+              </div>
+            </div>
+            <div class="custom-control-row">
+              <div class="left-side-control45">Recd from debtors:</div>
+              <div class="right-side-control55">
+                <input
+                  type="text"
+                  id="adminDebtorsAmountInput"
+                  pattern="^\d+(\.\d{0,2})?$"
+                  oninput="
+                    this.value = this.value
+                      .replace(/[^0-9.]/g, '')
+                      .replace(/(\..*)\./g, '$1')
+                      .replace(/^(\d*\.\d{2}).*/, '$1')
+                  "
+                  placeholder="Recd from debtors..."
+                  inputmode="numeric"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="red" onclick="resetDailyInputFields()">
+                reset
+              </button>
+              <button class="green" onclick="submitDailyInput()">Submit</button>
+            </div>
+          </div>
+
+          <div
+            id="libIssueBook"
+            class="popup-content scrollable-content leftSideNav-itemContainer"
+          >
+            <div class="custom-control-row">
+              <div class="left-side-control45">Devotee Name:</div>
+              <div class="right-side-control55">
+                <div class="liveSearchContainer">
+                  <input
+                    type="text"
+                    id="libCustName"
+                    class="liveSearch"
+                    placeholder="Lib Cust Name..."
+                  />
+                  <button id="libCustNameClrBtn" class="liveSearchClearBtn">
+                    &times;
+                  </button>
+                  <ul id="libCustNameULList" class="liveSearchUL"></ul>
+                </div>
+              </div>
+            </div>
+            <div class="custom-control-row">
+              <div class="left-side-control45">Book Name:</div>
+              <div class="right-side-control55">
+                <div class="liveSearchContainer">
+                  <input
+                    type="text"
+                    id="libBookName"
+                    class="liveSearch"
+                    placeholder="Book Name..."
+                  />
+                  <button class="liveSearchClearBtn" id="libBookNameCrlBtn">
+                    &times;
+                  </button>
+                  <ul id="libBookNameULList" class="liveSearchUL"></ul>
+                </div>
+              </div>
+            </div>
+            <div class="custom-control-row">
+              <div class="left-side-control45">Issue Date:</div>
+              <div class="right-side-control55">
+                <input type="date" id="libBookIssueDate" required />
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="red" onclick="">Reset</button>
+              <button class="green" onclick="issueLibBook()">Issue Book</button>
+            </div>
+          </div>
+
+          <div
+            id="libMembership"
+            class="popup-content scrollable-content leftSideNav-itemContainer"
+          >
+            <h2>New Membership</h2>
+            <div class="custom-control-row">
+              <div class="left-side-control45 required">User Name:</div>
+              <div class="right-side-control55">
+                <input
+                  type="text"
+                  id="newUserTxtBoxMShip"
+                  placeholder="User Name..."
+                  inputmode="numeric"
+                  required
+                />
+              </div>
+            </div>
+            <div class="custom-control-row">
+              <div class="left-side-control45 required">Mobile Number:</div>
+              <div class="right-side-control55">
+                <input
+                  type="text"
+                  id="mobileNumberTxtBoxMShip"
+                  oninput="
+                    this.value = this.value
+                      .replace(/[^0-9.]/g, '')
+                      .replace(/(\..*)\./g, '$1')
+                      .replace(/^(\d*\.\d{2}).*/, '$1')
+                  "
+                  placeholder="Mobile No..."
+                  inputmode="numeric"
+                  required
+                />
+              </div>
+            </div>
+            <div class="custom-control-row">
+              <div class="left-side-control45">Email:</div>
+              <div class="right-side-control55">
+                <input
+                  type="text"
+                  id="emailTxtBoxMShip"
+                  placeholder="Email..."
+                  required
+                />
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="red" onclick="backClickFromMemberShip()">
+                Reset
+              </button>
+              <button class="green" onclick="newLibMembershipInsert()">
+                Insert
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="adminNKDCommunitySale"
+            class="popup-content scrollable-content leftSideNav-itemContainer"
+            style="height: 508px"
+          >
+            <div class="custom-control-row">
+              <div class="left-side-control">
+                <div class="dropdownSelect">
+                  <input
+                    type="text"
+                    id="adminCustNameNKD"
+                    placeholder="Select Customer..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="liveSearchContainer">
+                <input
+                  type="text"
+                  id="adminItemInputNKD"
+                  class="liveSearch"
+                  placeholder="Item..."
+                />
+                <button class="liveSearchClearBtn" id="adminItemInputClrBtnNKD">
+                  &times;
+                </button>
+                <ul id="adminItemInputULListNKD" class="liveSearchUL"></ul>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center">
+              <div style="flex: 1 1 35%; padding-right: 10px">
+                <input
+                  type="text"
+                  id="adminQuantityInputNKD"
+                  placeholder="Quantity..."
+                  inputmode="numeric"
+                  oninput="restrictToNumberWithDecimalAndNegative(this)"
+                />
+              </div>
+              <div style="flex: 1 1 35%; padding-right: 10px">
+                <input
+                  type="text"
+                  id="adminDisInputNKD"
+                  inputmode="numeric"
+                  placeholder="Discount..."
+                  oninput="restrictToNumberWithDecimal(this)"
+                />
+              </div>
+              <div
+                style="
+                  margin-top: -10px;
+                  flex: 0 0 15%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <button
+                  class="green"
+                  id="addItemInBillBtnNKD"
+                  onclick="addItemInBillNKD()"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <table
+              id="billTable"
+              border="1"
+              style="margin-top: 10px; width: 100%; border-collapse: collapse"
+            >
+              <thead>
+                <tr>
+                  <th>❌</th>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Discount</th>
+                  <th>Base Amount</th>
+                  <th>GST %</th>
+                  <th>GST Amount</th>
+                  <th>Total Amount</th>
+                </tr>
+              </thead>
+              <tbody id="billTableBodyNKD"></tbody>
+            </table>
+
+            <div class="total-row-container custom-control-row">
+              <div class="left">
+                <button class="green" onclick="submitOrderNKD()">
+                  Generate Bill
+                </button>
+              </div>
+              <div class="right">
+                <div class="total-cost" id="totalCostNKD">Total: ₹0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup" id="userHomeContainer">
+        <div class="popup-content">
+          <button
+            class="leftSideNav-menuBtn"
+            onclick="openLeftNavBar('leftSideNavUser', 'NKD Users')"
+          >
+            ☰ NKD Users
+          </button>
+
+          <!-- Sidebar Navigation -->
+          <div id="leftSideNavUser" class="leftSideNav">
+            <!-- Clients -->
+            <!-- <a
+              href="#userHome"
+              class="leftNavBarUser-dynamicNavLink"
+              data-form="userHome"
+              >Home</a
+            > -->
+
+            <a
+              href="#userOrder"
+              class="leftNavBarUser-dynamicNavLink"
+              data-form="userOrder"
+              >Grocery Order</a
+            >
+
+            <a
+              href="#userPastOrders"
+              class="leftNavBarUser-dynamicNavLink"
+              data-form="userPastOrders"
+              >Past Orders</a
+            >
+          </div>
+
+          <!--  Sidebar Contect -->
+          <div class="leftSideNav-contentContainer">
+            <div
+              id="userHome"
+              class="popup-content scrollable-content leftSideNav-itemContainer"
+            >
+              <div>
+                <div>
+                  <h2>Available Products</h2>
+                  <input
+                    type="text"
+                    id="searchHMTableInput"
+                    placeholder="Search items..."
+                    onkeyup="filterHMTableRows()"
+                    style="margin-bottom: 10px; padding: 5px; width: 100%"
+                  />
+                </div>
+
+                <div
+                  class="collection-table-container scrollable-content-table"
+                  id="hmTableDiv"
+                  style="margin-top: 10px"
+                >
+                  <table id="hmTable">
+                    <thead id="hmTableTHead" class="table-header">
+                      <!-- Table headers will be dynamically generated here -->
+                    </thead>
+                    <tbody id="hmTableTBody">
+                      <!-- Table rows will be dynamically generated here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div
+              id="userOrder"
+              style="display: block"
+              class="popup-content scrollable-content-list leftSideNav-itemContainer"
+            >
+              <div class="user-order-container">
+                <input
+                  type="text"
+                  id="search-box"
+                  class="search-box"
+                  placeholder="🔍 Search by name or price..."
+                  oninput="filterUOProducts()"
+                />
+                <div class="scrollable-content-user-order-list">
+                  <div id="category-list"></div>
+                  <div id="product-list"></div>
+                </div>
+                <div class="total-price-container">
+                  <strong>Total: ₹<span id="total-price">0</span></strong>
+                </div>
+                <div class="button-row">
+                  <button class="green" onclick="onUserOrderSubmitClick()">
+                    Submit Order
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div
+              id="userPastOrders"
+              class="popup-content scrollable-content-list leftSideNav-itemContainer"
+            >
+              <div id="adminUserPastOrderListView"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup" id="newUserContainer">
+        <div class="popup-content">
+          <h2>New User Addition</h2>
+          <div class="custom-control-row">
+            <div class="left-side-control45 required">User Name:</div>
+            <div class="right-side-control55">
+              <input
+                type="text"
+                id="newUserTxtBox"
+                placeholder="User Name..."
+                inputmode="numeric"
+                required
+              />
+            </div>
+          </div>
+          <div class="custom-control-row">
+            <div class="left-side-control45 required">Mobile Number:</div>
+            <div class="right-side-control55">
+              <input
+                type="text"
+                id="mobileNumberTxtBox"
+                oninput="
+                  this.value = this.value
+                    .replace(/[^0-9.]/g, '')
+                    .replace(/(\..*)\./g, '$1')
+                    .replace(/^(\d*\.\d{2}).*/, '$1')
+                "
+                placeholder="Mobile No..."
+                inputmode="numeric"
+                required
+              />
+            </div>
+          </div>
+          <div class="custom-control-row">
+            <div class="left-side-control45">Email:</div>
+            <div class="right-side-control55">
+              <input
+                type="text"
+                id="emailTxtBox"
+                placeholder="Email..."
+                required
+              />
+            </div>
+          </div>
+          <div class="button-row">
+            <button class="red" onclick="backToSaleContainer()">Reset</button>
+            <button class="green" onclick="newUserInsert()">Insert</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="ScriptCommon.js"></script>
+    <script src="ScriptConstants.js"></script>
+    <script src="ScriptAdminOrderList.js"></script>
+    <script src="ScriptLibrary.js"></script>
+    <script src="Script.js"></script>
+    <script src="ScriptProduction.js"></script>
+    <script src="ScriptAdmin.js"></script>
+    <script src="ScriptUser.js"></script>
+    <script src="ScriptUserPastOrders.js"></script>
+    <script src="ScriptDailyInput.js"></script>
+    <script src="ScriptKhataBook.js"></script>
+    <script src="ScriptNKDCommunity.js"></script>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Drive Audio Test</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f2f2f2;
+        font-family: Arial, sans-serif;
+      }
+      .player {
+        text-align: center;
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+      h2 {
+        margin-bottom: 15px;
+      }
+      audio {
+        width: 300px;
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="player">
+      <h2>Testing</h2>
+      <audio id="audioPlayer" controls>
+        <source
+          src="https://raw.githubusercontent.com/hellohoneymittal/AudioMaster/main/LNS_Bhajans_-_Hare_Krishna-01_-_06-12-23.mp3"
+          type="audio/mpeg"
+        />
+        Your browser does not support the audio element.
+      </audio>
+      <p id="status"></p>
+    </div>
+
+    <script>
+      const audio = document.getElementById("audioPlayer");
+      const status = document.getElementById("status");
+
+      audio.addEventListener("loadeddata", () => {
+        status.textContent = "Audio loaded successfully!";
+      });
+
+      audio.addEventListener("error", () => {
+        status.textContent =
+          "Error: Audio could not be loaded. Check sharing settings!";
+      });
+    </script>
+  </body>
+</html>
