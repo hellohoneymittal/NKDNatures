@@ -852,7 +852,7 @@ tbody tr:nth-child(even) {
   border-radius: 16px;
   width: 90%;
   /* max-width: 21rem; */
-  max-width: 70rem;
+  max-width: 60rem;
   text-align: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
