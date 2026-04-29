@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "adminCustNameULList",
     function (selectedText) {
       selectedUserObj = userDataArr.find(
-        (item) => item.name === selectedText.trim()
+        (item) => item.name === selectedText.trim(),
       );
 
       selectedCustomerName = selectedText;
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
         discountDiv.innerText = "";
         discountDiv.style.display = "None";
       }
-    }
+    },
   );
 
   setupLiveSearch(
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "adminItemInputULList",
     function (selectedText) {
       selectedItem = selectedText;
-    }
+    },
   );
 });
 
@@ -55,7 +55,7 @@ function initializedCustomerList(data) {
     "adminCustName",
     "adminCustNameClrBtn",
     "adminCustNameULList",
-    data
+    data,
   );
 }
 
@@ -86,7 +86,7 @@ function preprocessItemData(data) {
     if (aggregatedData[adminStockKey]) {
       aggregatedData[adminStockKey].available += available;
       aggregatedData[adminStockKey].available = parseFloat(
-        aggregatedData[adminStockKey].available.toFixed(2)
+        aggregatedData[adminStockKey].available.toFixed(2),
       ); // Maintain 2-digit precision
       aggregatedData[adminStockKey].batches.push({
         batch: row["Batch/Date of Manufacture"],
@@ -121,7 +121,7 @@ async function initializedItemList() {
   stockItemDataList = itemData;
 
   itemArray = itemData.map(
-    (row) => `${row.item} - ${row.available} - ${row.price}`
+    (row) => `${row.item} - ${row.available} - ${row.price}`,
   );
 
   if (itemArray) {
@@ -141,7 +141,7 @@ async function reInitializedItemList() {
       let itemData = preprocessItemData(data);
 
       itemArray = itemData.map(
-        (row) => `${row.item} - ${row.available} - ${row.price}`
+        (row) => `${row.item} - ${row.available} - ${row.price}`,
       );
 
       if (itemArray) {
@@ -160,7 +160,7 @@ function initializedItemListLiveSearchControl(itemArray) {
     "adminItemInput",
     "adminItemInputClrBtn",
     "adminItemInputULList",
-    itemArray
+    itemArray,
   );
 }
 
@@ -218,7 +218,7 @@ function addItemInBill() {
   }
 
   const itemData = stockItemDataList.find(
-    (data) => data.item.trim().toLowerCase() === itemName.trim().toLowerCase()
+    (data) => data.item.trim().toLowerCase() === itemName.trim().toLowerCase(),
   );
 
   if (!itemData) {
@@ -251,7 +251,7 @@ function addItemInBill() {
 
   const uniqueKey = `${itemName}`;
   const existingItem = selectedItems.find(
-    (item) => item.key.trim() === uniqueKey.trim()
+    (item) => item.key.trim() === uniqueKey.trim(),
   );
 
   if (existingItem) {
@@ -319,7 +319,7 @@ function addItemInBill() {
   }
 
   const itemIndex = itemArray.findIndex(
-    (item) => item.split("-")[0].trim() == itemName.trim()
+    (item) => item.split("-")[0].trim() == itemName.trim(),
   );
 
   if (itemIndex > -1) {
@@ -370,14 +370,14 @@ function deleteSaleRow(itemName) {
   // Find the index of the item in selectedItems array
 
   const itemIndex = selectedItems.findIndex(
-    (item) => item.key?.trim() === itemName?.trim()
+    (item) => item.key?.trim() === itemName?.trim(),
   );
 
   if (itemIndex !== -1) {
     const deletedItem = selectedItems[itemIndex];
 
     const itemArrayIndex = itemArray.findIndex(
-      (item) => item.split(" - ")[0].trim() === itemName.trim()
+      (item) => item.split(" - ")[0].trim() === itemName.trim(),
     );
 
     const oldQty = deletedItem.quantity;
@@ -466,7 +466,7 @@ function submitOrder() {
     onSaleConfirmClick,
     "Proceed",
     "Back",
-    `Summary - ${totalCostDisplayValue}`
+    `Summary - ${totalCostDisplayValue}`,
   );
 }
 
@@ -499,7 +499,7 @@ function prepareInputDataForSale() {
   let totalCostDisplay = document.getElementById("totalCost");
   const totalCostDisplayValue = totalCostDisplay.textContent;
   let totalCostNumValue = parseFloat(
-    totalCostDisplayValue.replace(/[₹,]/g, "")
+    totalCostDisplayValue.replace(/[₹,]/g, ""),
   );
   const adminSkNameCtrl = document.getElementById("adminCustName");
   const customerName = adminSkNameCtrl?.value || "Unknown";
@@ -513,7 +513,7 @@ function prepareInputDataForSale() {
 
     // Get all matching stock entries for the item
     const matchingStocks = orignalAdminStockList.filter(
-      (stock) => stock.Item.trim() === item.name.trim()
+      (stock) => stock.Item.trim() === item.name.trim(),
     );
 
     matchingStocks.forEach((stock) => {
@@ -649,6 +649,9 @@ function resetSaleFields() {
 
   tableBody.innerHTML = "";
   totalCostDisplay.textContent = `₹0.00`;
+  document.querySelectorAll('input[name="paymentStatus"]').forEach((radio) => {
+    radio.checked = false;
+  });
 
   SHOW_SPECIFIC_DIV("adminHomeContainer");
 }
@@ -680,10 +683,10 @@ function downloadBillAsPDF() {
 
   // Extract headers and rows from the table
   const headers = [...table.querySelectorAll("thead th")].map(
-    (th) => th.innerText.trim() // Ensure no extra spaces
+    (th) => th.innerText.trim(), // Ensure no extra spaces
   );
   const rows = [...table.querySelectorAll("tbody tr")].map((tr) =>
-    [...tr.querySelectorAll("td")].map((td) => td.innerText.trim())
+    [...tr.querySelectorAll("td")].map((td) => td.innerText.trim()),
   );
 
   // Add heading and details to the PDF
@@ -711,7 +714,7 @@ function downloadBillAsPDF() {
     pageWidth - logoWidth - 10,
     10,
     logoWidth,
-    logoHeight
+    logoHeight,
   );
 
   // Add the table to the PDF
@@ -776,7 +779,7 @@ async function newUserInsert() {
 
   selectedCustomerName = newUserTxtBoxCtrl.value.trim();
   selectedCustomerName = selectedCustomerName.replace(/\b\w/g, (char) =>
-    char.toUpperCase()
+    char.toUpperCase(),
   );
 
   isCustomerManuallyAdded = true;
@@ -823,7 +826,7 @@ function populateSaleFromUserOrder() {
   userOrderInfo.forEach((item) => {
     // 🔍 Find item in stock list
     const itemIndex = itemArray.findIndex(
-      (i) => i.split("-")[0].trim() === item.name.trim()
+      (i) => i.split("-")[0].trim() === item.name.trim(),
     );
 
     if (itemIndex === -1) {
@@ -846,7 +849,7 @@ function populateSaleFromUserOrder() {
 
     if (currentAvailability < minusStockQty) {
       alert(
-        `Insufficient stock for item '${item.name}'. Available: ${currentAvailability}, Required: ${minusStockQty}`
+        `Insufficient stock for item '${item.name}'. Available: ${currentAvailability}, Required: ${minusStockQty}`,
       );
       return;
     }
