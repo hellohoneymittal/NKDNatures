@@ -1,3 +1,167 @@
+const DB_VERSION = 4;
+
+// Open (or create) database and object store
+function DB_OPEN_INTERNAL(dbName = "AppDB", storeName = "store") {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(dbName, DB_VERSION);
+
+    request.onupgradeneeded = function (event) {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.createObjectStore(storeName, { keyPath: "id" });
+      }
+    };
+
+    request.onsuccess = function (event) {
+      const db = event.target.result;
+
+      // Safety check for old/corrupted databases
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.close();
+
+        const deleteRequest = indexedDB.deleteDatabase(dbName);
+
+        deleteRequest.onsuccess = function () {
+          // Reopen after reset
+          const reopenRequest = indexedDB.open(dbName, DB_VERSION);
+
+          reopenRequest.onupgradeneeded = function (event) {
+            const newDb = event.target.result;
+
+            if (!newDb.objectStoreNames.contains(storeName)) {
+              newDb.createObjectStore(storeName, { keyPath: "id" });
+            }
+          };
+
+          reopenRequest.onsuccess = function (event) {
+            resolve(event.target.result);
+          };
+
+          reopenRequest.onerror = function () {
+            reject("Failed to recreate IndexedDB");
+          };
+        };
+
+        deleteRequest.onerror = function () {
+          reject("Failed to reset IndexedDB");
+        };
+
+        return;
+      }
+
+      resolve(db);
+    };
+
+    request.onerror = function () {
+      reject("IndexedDB error");
+    };
+  });
+}
+
+// Save or update data in given store
+async function DB_SET(
+  storeKey,
+  data,
+  dbName = "AppDB",
+  storeName = "store",
+  expiryHours = null,
+) {
+  const db = await DB_OPEN_INTERNAL(dbName, storeName);
+
+  if (!db.objectStoreNames.contains(storeName)) {
+    throw new Error(
+      `IndexedDB store '${storeName}' not found in database '${dbName}'`,
+    );
+  }
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+
+    store.put({
+      id: storeKey,
+      data,
+      expiresAt:
+        expiryHours !== null && expiryHours !== undefined
+          ? Date.now() + expiryHours * 60 * 60 * 1000
+          : null,
+    });
+
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
+
+async function DB_GET(storeKey, dbName = "AppDB", storeName = "store") {
+  const db = await DB_OPEN_INTERNAL(dbName, storeName);
+
+  if (!db.objectStoreNames.contains(storeName)) {
+    throw new Error(
+      `IndexedDB store '${storeName}' not found in database '${dbName}'`,
+    );
+  }
+
+  return new Promise((resolve) => {
+    const tx = db.transaction(storeName, "readonly");
+    const store = tx.objectStore(storeName);
+    const request = store.get(storeKey);
+
+    request.onsuccess = async function () {
+      const record = request.result;
+
+      if (!record) {
+        resolve(null);
+        return;
+      }
+
+      if (record.expiresAt && Date.now() > record.expiresAt) {
+        await DB_DELETE(storeKey, dbName, storeName);
+        resolve(null);
+        return;
+      }
+
+      resolve(record.data);
+    };
+
+    request.onerror = function () {
+      resolve(null);
+    };
+  });
+}
+
+// Delete data from store by key
+async function DB_DELETE(storeKey, dbName = "AppDB", storeName = "store") {
+  const db = await DB_OPEN_INTERNAL(dbName, storeName);
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+
+    store.delete(storeKey);
+
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
+
+async function DB_CLEAR(dbName = "AppDB", storeName = "store") {
+  const db = await DB_OPEN_INTERNAL(dbName, storeName);
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+
+    store.clear();
+
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
+
 function formatDuration(startTimestamp, endTimestamp) {
   // Calculate the difference in milliseconds
   const durationMs = endTimestamp - startTimestamp;
@@ -1224,6 +1388,42 @@ async function CALL_API_WITHOUT_LOADING(apiType, data) {
   } catch (ex) {
     SHOW_ERROR_POPUP("Error :- " + ex);
   }
+}
+
+async function CALL_API_WITH_CACHE(
+  apiType,
+  inputData = {},
+  cacheHours = null,
+  forceRefresh = false,
+) {
+  if (!forceRefresh) {
+    const cachedResponse = await DB_GET(
+      apiType,
+      INDEX_DB.dbName,
+      INDEX_DB.storeName,
+    );
+
+    if (cachedResponse) {
+      console.log(`Cache Hit : ${apiType}`);
+      return cachedResponse;
+    }
+  }
+
+  console.log(`Cache Miss : ${apiType}`);
+
+  const response = await CALL_API(apiType, inputData);
+
+  if (response) {
+    await DB_SET(
+      apiType, // cache key = apiType
+      response,
+      INDEX_DB.dbName,
+      INDEX_DB.storeName,
+      cacheHours,
+    );
+  }
+
+  return response;
 }
 
 function openLeftNavBar(leftSideNavId, menuLabel) {
