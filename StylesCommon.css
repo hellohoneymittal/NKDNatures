@@ -1769,3 +1769,17 @@ input[type="radio"] {
 .user-icon-btn:focus {
   outline: none;
 }
+
+.admin-panel-title {
+  text-align: center;
+  margin-bottom: 0px;
+  font-size: 18px;
+  color: #e6e6e6;
+  font-weight: bold;
+  background: #52609a; /* Light yellow background */
+  border-radius: 8px;
+  border: 1px solid #ffc107; /* Yellow border */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  padding: 10px 8px !important;
+}
