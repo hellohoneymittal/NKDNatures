@@ -2,7 +2,19 @@ let userDataArr = [];
 let khataBookUserGridData = [];
 let selectedKBUser = "";
 let rowStockReponse = [];
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  const loginData = await DB_GET(
+    "GET_ALL_USER_LIST_NEW",
+    INDEX_DB.dbName,
+    INDEX_DB.storeName,
+  );
+
+  if (loginData) {
+    populateAdminPage(loginData);
+  } else {
+    SHOW_SPECIFIC_DIV("mainContainer");
+  }
+
   document.querySelectorAll(".leftNavBar-dynamicNavLink").forEach((link) => {
     link.addEventListener("click", function (event) {
       event.preventDefault();
@@ -180,7 +192,8 @@ async function initializedKhatabook() {
   );
 }
 async function viewHomePage() {
-  const isAdmin = document.getElementById("permissionRadioAdmin").checked;
+  const isAdmin = true;
+  // const isAdmin = document.getElementById("permissionRadioAdmin").checked;
   const passwordInputValue =
     document.getElementById("passwordInputAdmin").value;
   if (!passwordInputValue) {
@@ -189,20 +202,15 @@ async function viewHomePage() {
   }
   if (isAdmin) {
     const request = {
-      apiType: API_TYPE_CONSTANT.getAllUserList,
       password: passwordInputValue.toString().trim().toLowerCase(),
     };
-    const response = await API_HANDLER_AXIOS(request);
+    const response = await CALL_API_WITH_CACHE(
+      "GET_ALL_USER_LIST_NEW",
+      request,
+    );
 
     if (response.status && response.data.isAdminAccess) {
-      SHOW_SPECIFIC_DIV("adminHomeContainer");
-
-      if (Array.isArray(response?.data?.data)) {
-        userDataArr = response?.data?.data;
-      }
-
-      initializedCustomerList(response?.data?.data.map((item) => item.name));
-      initializedItemList();
+      populateAdminPage(response);
     } else {
       SHOW_ERROR_POPUP(
         "Authentication failed. You might not have admin privileges, or the password entered is invalid.",
@@ -227,6 +235,22 @@ async function viewHomePage() {
     await populateHMTable();
     SHOW_SPECIFIC_DIV("userHomeContainer");
   }
+}
+
+function populateAdminPage(response) {
+  debugger;
+  SHOW_SPECIFIC_DIV("adminHomeContainer");
+  //document.getElementById("loginName").textContent = response?.data?.name;
+  if (Array.isArray(response?.data?.data)) {
+    userDataArr = response?.data?.data;
+  }
+  initializedCustomerList(response?.data?.data.map((item) => item.name));
+  initializedItemList();
+}
+
+async function logoutBtnClick() {
+  await DB_CLEAR(INDEX_DB.dbName, INDEX_DB.storeName);
+  SHOW_SPECIFIC_DIV("mainContainer");
 }
 
 async function populateStock() {
