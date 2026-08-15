@@ -300,11 +300,12 @@
 
               <div class="custom-control-row">
                 <div class="left-side-control">
-                  <h3>
-                    <label id="loginName" style="text-align: center"
-                      >Admin Panel</label
-                    >
-                  </h3>
+                  <label
+                    id="loginName"
+                    class="admin-panel-title"
+                    style="text-align: center"
+                    >Admin Panel</label
+                  >
                 </div>
                 <div class="right-side-control">
                   <button class="red" onclick="logoutBtnClick()">Logout</button>
@@ -468,6 +469,37 @@
                     id="cashSale"
                   />
                   Cash
+                </div>
+              </div>
+              <div
+                style="display: flex; align-items: center; margin-bottom: 10px"
+              >
+                <div style="flex: 1 1 30%; padding-right: 10px">
+                  GST Bill Required:
+                </div>
+                <div
+                  style="
+                    flex: 1 1 82%;
+                    padding-right: 10px;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <input
+                    type="radio"
+                    name="gstStatus"
+                    value="gstYes"
+                    id="gstYesStatus"
+                  />
+                  Yes
+                  <input
+                    type="radio"
+                    name="gstStatus"
+                    value="gstNo"
+                    id="gstNoStatus"
+                    checked
+                  />
+                  No
                 </div>
               </div>
               <div>

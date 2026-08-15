@@ -438,6 +438,12 @@ function submitOrder() {
     return;
   }
 
+  const selectedGSTStatus = getSelectedGstStatus();
+  if (!selectedGSTStatus) {
+    SHOW_ERROR_POPUP("GST status not selected");
+    return;
+  }
+
   let orderSummary = `Customer: ${customerName}\nOrder Summary:\n`;
   let totalCost = 0;
 
@@ -495,6 +501,7 @@ function generateBillNumber(type = "Nature") {
 function prepareInputDataForSale() {
   const paymentStatus = getSelectedPaymentStatus();
   const saleType = getSelectedSaleType();
+  const gstStatus = getSelectedGstStatus();
   const comment = document.getElementById("commentsSaleInput").value;
   let totalCostDisplay = document.getElementById("totalCost");
   const totalCostDisplayValue = totalCostDisplay.textContent;
@@ -556,6 +563,7 @@ function prepareInputDataForSale() {
           expiryDays: stock.ExpiryDays ?? "",
           productType: stock.ProductType ?? "",
           stockDateTime: stock.DateTime ?? "",
+          gstStatus: gstStatus,
         });
 
         remainingQty -= usedQty;
@@ -751,6 +759,18 @@ function getSelectedSaleType() {
     return "Cash";
   } else if (bankSaleRdo.checked) {
     return "Bank";
+  }
+  return null;
+}
+
+function getSelectedGstStatus() {
+  const gstYesStatus = document.getElementById("gstYesStatus");
+  const gstNoStatus = document.getElementById("gstNoStatus");
+
+  if (gstYesStatus.checked) {
+    return "Yes";
+  } else if (gstNoStatus.checked) {
+    return "No";
   }
   return null;
 }
