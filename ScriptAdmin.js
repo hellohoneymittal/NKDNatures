@@ -537,6 +537,9 @@ function prepareInputDataForSale() {
         ) {
           usedQtyModified = parseFloat((usedQty / 1000).toFixed(3));
         }
+
+        const hsn = stock["HSN"] || "";
+        const gstPercent = formatNumber(stock["GST %"] || "0");
         const baseTotal = usedQtyModified * priceModified;
         const discAmt = Number(item.discountAmount) || 0;
         const schemeAmt = Number(item.schemeDiscountAmount) || 0;
@@ -564,6 +567,8 @@ function prepareInputDataForSale() {
           productType: stock.ProductType ?? "",
           stockDateTime: stock.DateTime ?? "",
           gstStatus: gstStatus,
+          hsn: hsn,
+          gstPercent: gstPercent,
         });
 
         remainingQty -= usedQty;
@@ -610,6 +615,7 @@ function combineItemsByNameForWhatsapp() {
 async function onSaleConfirmClick() {
   const dataForSale = prepareInputDataForSale();
   console.log("Data for Sale:", dataForSale);
+
   if (dataForSale?.length > 0) {
     const request = {
       inputData: JSON.stringify(dataForSale),
