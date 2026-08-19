@@ -273,6 +273,12 @@
               data-form="adminNKDCommunitySale"
               >NKD Community Sale</a
             >
+            <a
+              href="#natureGSTBill"
+              class="leftNavBar-dynamicNavLink"
+              data-form="natureGSTBill"
+              >Nature GST Bills</a
+            >
           </div>
 
           <div class="leftSideNav-contentContainer">
@@ -957,6 +963,17 @@
               <div class="right">
                 <div class="total-cost" id="totalCostNKD">Total: ₹0</div>
               </div>
+            </div>
+          </div>
+
+          <div
+            id="natureGSTBill"
+            class="popup-content scrollable-content leftSideNav-itemContainer"
+          >
+            <div class="button-row">
+              <button class="green" onclick="processNatureGSTBillRequest()">
+                Generate Natures GST Bill
+              </button>
             </div>
           </div>
         </div>
