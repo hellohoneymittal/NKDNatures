@@ -483,3 +483,16 @@ function animateBell() {
     }, 600);
   }
 }
+
+async function processNatureGSTBillRequest() {
+  SHOW_INFO_POPUP("Request submitted. I will proceed shortly.");
+  const response = await CALL_API_WITHOUT_LOADING(
+    "GENERATE_NATURES_GST_INVOICE",
+    {},
+  );
+  if (response?.data?.success) {
+    SHOW_SUCCESS_POPUP(response?.data?.message);
+  } else {
+    SHOW_ERROR_POPUP("Error in GST Bill Generation " + response?.data?.message);
+  }
+}
