@@ -19,19 +19,23 @@ document.addEventListener("DOMContentLoaded", function () {
     "adminCustNameClrBtn",
     "adminCustNameULList",
     function (selectedText) {
-      selectedUserObj = userDataArr.find(
-        (item) => item.name === selectedText.trim(),
-      );
+      if (selectedText) {
+        selectedUserObj = userDataArr.find(
+          (item) => item.name === selectedText.trim(),
+        );
 
-      selectedCustomerName = selectedText;
-      if (selectedUserObj?.schemeDiscount > 0) {
-        const discountDiv = document.getElementById("customerDiscountInfo");
-        discountDiv.innerText = `🎉 Applicable Discount: ${selectedUserObj.schemeDiscount} %`;
-        discountDiv.style.display = "block";
+        selectedCustomerName = selectedText;
+        if (selectedUserObj?.schemeDiscount > 0) {
+          const discountDiv = document.getElementById("customerDiscountInfo");
+          discountDiv.innerText = `🎉 Applicable Discount: ${selectedUserObj.schemeDiscount} %`;
+          discountDiv.style.display = "block";
+        } else {
+          const discountDiv = document.getElementById("customerDiscountInfo");
+          discountDiv.innerText = "";
+          discountDiv.style.display = "None";
+        }
       } else {
-        const discountDiv = document.getElementById("customerDiscountInfo");
-        discountDiv.innerText = "";
-        discountDiv.style.display = "None";
+        selectedUserObj = {};
       }
     },
   );
@@ -41,7 +45,11 @@ document.addEventListener("DOMContentLoaded", function () {
     "adminItemInputClrBtn",
     "adminItemInputULList",
     function (selectedText) {
-      selectedItem = selectedText;
+      if (selectedText) {
+        selectedItem = selectedText;
+      } else {
+        selectedItem = "";
+      }
     },
   );
 });

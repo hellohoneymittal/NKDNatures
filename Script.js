@@ -170,8 +170,12 @@ async function initializedKhatabook() {
     "kbLiveSearchInputClrBtn",
     "kbLiveSearchInputULList",
     function (selectedText) {
-      selectedKBUser = selectedText.trim();
-      filterKBTableRows(selectedText);
+      if (selectedText) {
+        selectedKBUser = selectedText.trim();
+        filterKBTableRows(selectedText);
+      } else {
+        selectedKBUser = "";
+      }
     },
   );
 

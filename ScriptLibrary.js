@@ -36,8 +36,12 @@ async function initializedLibCustomerList() {
     "libCustNameClrBtn",
     "libCustNameULList",
     function (selectedText) {
-      selectedLibCustomerName = selectedText;
-    }
+      if (selectedText) {
+        selectedLibCustomerName = selectedText;
+      } else {
+        selectedLibCustomerName = "";
+      }
+    },
   );
 
   const request = {};
@@ -48,7 +52,7 @@ async function initializedLibCustomerList() {
     "libCustName",
     "libCustNameClrBtn",
     "libCustNameULList",
-    libCustNameList
+    libCustNameList,
   );
 }
 
@@ -59,14 +63,14 @@ async function initializedLibBookList() {
     "libBookNameULList",
     function (selectedText) {
       selectedBook = selectedText;
-    }
+    },
   );
   const request = {};
   const onlineRes = await IS_ONLINE();
   if (onlineRes) {
     const libResponse = await CALL_API(
       API_TYPE_CONSTANT.LIB_BOOK_LIST,
-      request
+      request,
     );
 
     const bookList = libResponse?.data?.bookMasterResponse;
@@ -102,7 +106,7 @@ async function initializedLibBookList() {
       "libBookName",
       "libBookNameCrlBtn",
       "libBookNameULList",
-      libBookNameList
+      libBookNameList,
     );
   }
 }
@@ -140,7 +144,7 @@ async function newLibMembershipInsert() {
 
   selectedCustomerNameLib = newUserTxtBoxCtrl.value.trim();
   selectedCustomerNameLib = selectedCustomerNameLib.replace(/\b\w/g, (char) =>
-    char.toUpperCase()
+    char.toUpperCase(),
   );
 
   const request = {
