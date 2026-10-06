@@ -1,4 +1,4 @@
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 // Open (or create) database and object store
 function DB_OPEN_INTERNAL(dbName = "AppDB", storeName = "store") {
