@@ -684,37 +684,54 @@ function daySuffix(day) {
 }
 
 async function API_HANDLER_AXIOS(request) {
+  const url = "https://natures-api.nkd-community-gzb.workers.dev/";
+
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
-    IsLoading(true); // Start loading
+    IsLoading(true);
 
     const jsonReq = JSON.stringify(request);
-    const response = await axios.post(url, jsonReq);
+
+    const response = await axios.post(url, jsonReq, {
+      timeout: 30000,
+    });
+
+    console.log("API STATUS:", response.status);
+    console.log("API DATA:", response.data);
+
     const data = response?.data;
-    IsLoading(false); // Stop loading
 
     if (data?.status) {
-      return data; // Resolve the data to be used by the caller
-    } else {
-      console.log("Error - ", data);
-      SHOW_ERROR_POPUP(
-        "Something went wrong, please contact any NKD Servants.",
-      );
+      return data;
     }
+
+    console.error("Unexpected API response:", data);
+
+    SHOW_ERROR_POPUP("Something went wrong, please contact any NKD Servants.");
+
+    return null;
   } catch (error) {
-    IsLoading(false); // Stop loading on error
-    console.log(error);
-    SHOW_ERROR_POPUP(error.message);
+    console.error("API ERROR:", {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+
+    SHOW_ERROR_POPUP(
+      error.response?.status
+        ? `API Error: ${error.response.status}`
+        : error.message,
+    );
+
+    return null;
   } finally {
-    IsLoading(false); // Stop loading regardless of success or error
+    IsLoading(false);
   }
 }
 
 async function API_HANDLER_WITHOUT_LOADING_AXIOS(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
 
     const jsonReq = JSON.stringify(request);
     const response = await axios.post(url, jsonReq);
@@ -736,8 +753,7 @@ async function API_HANDLER_WITHOUT_LOADING_AXIOS(request) {
 
 async function API_HANDLER(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
     IsLoading(true); // Start loading
 
     const fetchOptions = {
@@ -774,8 +790,7 @@ async function API_HANDLER(request) {
 
 async function API_HANDLER_WITH_APPLICATION_JSON_TYPE(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
     IsLoading(true); // Start loading
 
     const fetchOptions = {
@@ -812,8 +827,7 @@ async function API_HANDLER_WITH_APPLICATION_JSON_TYPE(request) {
 
 async function API_HANDLER_WITHOUT_LOADING(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
 
     const fetchOptions = {
       method: "POST",
@@ -844,8 +858,8 @@ async function API_HANDLER_WITHOUT_LOADING(request) {
 
 async function API_HANDLER_GET(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyLOEEFs1J-GepV5Ma4N64mku6BWw1wa5ROebVDzYB5oF40BNkmawBnE9KQoGLgsL8W/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
+
     IsLoading(true); // Start loading
 
     const queryString = new URLSearchParams(request).toString();
@@ -905,131 +919,6 @@ function SHOW_SPECIFIC_DIV_WITH_BLOCK(divId) {
   } else {
     console.error(`Div with id '${divId}' not found.`);
   }
-}
-
-function callFilterLiveSearchList(
-  inputCtrlId,
-  clearBtnCtrlId,
-  ulListId,
-  callback,
-) {
-  const inputCtrl = document.getElementById(inputCtrlId);
-  const ulList = document.getElementById(ulListId);
-  const clearBtn = document.getElementById(clearBtnCtrlId);
-  const input = inputCtrl.value.toLowerCase();
-  const items = ulList.getElementsByTagName("li");
-  let hasVisibleItems = false;
-
-  for (const item of items) {
-    const liveSearchValue = item.textContent.toLowerCase();
-    if (liveSearchValue.includes(input)) {
-      item.style.display = ""; // Show the item
-      hasVisibleItems = true;
-      item.onclick = function () {
-        if (clearBtn) clearBtn.style.display = "block";
-        callSetupLiveSearchClearableInput(inputCtrlId, clearBtnCtrlId);
-        inputCtrl.value = item.textContent; // Set input value to selected item
-        ulList.style.display = "none"; // Hide list after selection
-        hasVisibleItems = false;
-        if (callback) callback(item.textContent); // Call the callback with the selected text
-      };
-    } else {
-      item.style.display = "none"; // Hide the item
-    }
-  }
-
-  ulList.style.display = hasVisibleItems ? "block" : "none"; // Show/hide the list based on visible items
-  if (clearBtn) clearBtn.style.display = input ? "block" : "none";
-  callSetupLiveSearchClearableInput(inputCtrlId, clearBtnCtrlId);
-}
-
-function callHideLiveSearchOnClick(inputCtrlId, clearBtnCtrlId, ulListId) {
-  document.addEventListener("click", function (event) {
-    const ulList = document.getElementById(ulListId);
-    const inputCtrl = document.getElementById(inputCtrlId);
-
-    // Check if the click is outside the input and list
-    if (event.target !== inputCtrl && !ulList.contains(event.target)) {
-      ulList.style.display = "none"; // Hide the list
-    }
-  });
-}
-
-function callSetupLiveSearchClearableInput(
-  liveSearchinputId,
-  liveSearchClearBtnId,
-) {
-  const input = document.getElementById(liveSearchinputId);
-  const clearBtn = document.getElementById(liveSearchClearBtnId);
-
-  if (!input || !clearBtn) {
-    console.error("Invalid input or clear button ID");
-    return;
-  }
-
-  input.addEventListener("input", function () {
-    clearBtn.style.display = this.value ? "block" : "none";
-  });
-
-  clearBtn.addEventListener("click", function () {
-    input.value = "";
-    clearBtn.style.display = "none";
-    input.focus(); // Keep the textbox active
-  });
-}
-
-function setupLiveSearch(inputCtrlId, clearBtnCtrlId, ulListId, callback) {
-  const inputCtrl = document.getElementById(inputCtrlId);
-
-  inputCtrl.addEventListener("keyup", function () {
-    callFilterLiveSearchList(
-      inputCtrlId,
-      clearBtnCtrlId,
-      ulListId,
-      function (selectedText) {
-        // Call the callback to handle the selected text based on input type
-        if (callback) callback(selectedText);
-      },
-    );
-  });
-
-  // Click event to toggle the dropdown list
-  inputCtrl.addEventListener("click", function () {
-    callFilterLiveSearchList(
-      inputCtrlId,
-      clearBtnCtrlId,
-      ulListId,
-      function (selectedText) {
-        // Call the callback to handle the selected text based on input type
-        if (callback) callback(selectedText);
-      },
-    );
-  });
-
-  // Call the generic function to handle hiding the dropdown
-  callHideLiveSearchOnClick(inputCtrlId, clearBtnCtrlId, ulListId);
-}
-
-function initializedLiveSearchControl(
-  inputCtrlId,
-  clearBtnCtrlId,
-  ulListId,
-  responseArray,
-) {
-  const inputCtrl = document.getElementById(inputCtrlId);
-  const ulList = document.getElementById(ulListId);
-
-  ulList.innerHTML = "";
-  responseArray?.forEach((item) => {
-    const li = document.createElement("li");
-    li.textContent = item;
-    li.onclick = () => {
-      inputCtrl.value = item;
-      ulList.style.display = "none";
-      callSetupLiveSearchClearableInput(inputCtrlId, clearBtnCtrlId);
-    };
-    ulList.appendChild(li);
-  });
 }
 
 function initializedLiveSearchControlWithFullData(
@@ -12084,3 +11973,138 @@ const stockDataResonse = [
     "GST %": 0,
   },
 ];
+
+//#region Live Search Method
+function callFilterLiveSearchList(
+  inputCtrlId,
+  clearBtnCtrlId,
+  ulListId,
+  callback,
+) {
+  const inputCtrl = document.getElementById(inputCtrlId);
+  const ulList = document.getElementById(ulListId);
+  const clearBtn = document.getElementById(clearBtnCtrlId);
+  const input = inputCtrl.value.toLowerCase();
+  const items = ulList.getElementsByTagName("li");
+  let hasVisibleItems = false;
+
+  for (const item of items) {
+    const liveSearchValue = item.textContent.toLowerCase();
+    if (liveSearchValue.includes(input)) {
+      item.style.display = ""; // Show the item
+      hasVisibleItems = true;
+      item.onclick = function () {
+        if (clearBtn) clearBtn.style.display = "block";
+        callSetupLiveSearchClearableInput(
+          inputCtrlId,
+          clearBtnCtrlId,
+          callback,
+        );
+        inputCtrl.value = item.textContent; // Set input value to selected item
+        ulList.style.display = "none"; // Hide list after selection
+        hasVisibleItems = false;
+        if (callback) callback(item.textContent); // Call the callback with the selected text
+      };
+    } else {
+      item.style.display = "none"; // Hide the item
+    }
+  }
+
+  ulList.style.display = hasVisibleItems ? "block" : "none"; // Show/hide the list based on visible items
+  if (clearBtn) clearBtn.style.display = input ? "block" : "none";
+  callSetupLiveSearchClearableInput(inputCtrlId, clearBtnCtrlId, callback);
+}
+
+function callHideLiveSearchOnClick(inputCtrlId, clearBtnCtrlId, ulListId) {
+  document.addEventListener("click", function (event) {
+    const ulList = document.getElementById(ulListId);
+    const inputCtrl = document.getElementById(inputCtrlId);
+
+    // Check if the click is outside the input and list
+    if (event.target !== inputCtrl && !ulList.contains(event.target)) {
+      ulList.style.display = "none"; // Hide the list
+    }
+  });
+}
+
+function callSetupLiveSearchClearableInput(
+  liveSearchinputId,
+  liveSearchClearBtnId,
+  callback,
+) {
+  const input = document.getElementById(liveSearchinputId);
+  const clearBtn = document.getElementById(liveSearchClearBtnId);
+
+  if (!input || !clearBtn) {
+    console.error("Invalid input or clear button ID");
+    return;
+  }
+
+  input.addEventListener("input", function () {
+    clearBtn.style.display = this.value ? "block" : "none";
+  });
+
+  clearBtn.addEventListener("click", function () {
+    input.value = "";
+    clearBtn.style.display = "none";
+    input.focus();
+
+    // Notify consuming page that input has been cleared
+    if (callback) callback("");
+  });
+}
+
+function setupLiveSearch(inputCtrlId, clearBtnCtrlId, ulListId, callback) {
+  const inputCtrl = document.getElementById(inputCtrlId);
+
+  inputCtrl.addEventListener("keyup", function () {
+    callFilterLiveSearchList(
+      inputCtrlId,
+      clearBtnCtrlId,
+      ulListId,
+      function (selectedText) {
+        // Call the callback to handle the selected text based on input type
+        if (callback) callback(selectedText);
+      },
+    );
+  });
+
+  // Click event to toggle the dropdown list
+  inputCtrl.addEventListener("click", function () {
+    callFilterLiveSearchList(
+      inputCtrlId,
+      clearBtnCtrlId,
+      ulListId,
+      function (selectedText) {
+        // Call the callback to handle the selected text based on input type
+        if (callback) callback(selectedText);
+      },
+    );
+  });
+
+  // Call the generic function to handle hiding the dropdown
+  callHideLiveSearchOnClick(inputCtrlId, clearBtnCtrlId, ulListId);
+}
+
+function initializedLiveSearchControl(
+  inputCtrlId,
+  clearBtnCtrlId,
+  ulListId,
+  responseArray,
+) {
+  const inputCtrl = document.getElementById(inputCtrlId);
+  const ulList = document.getElementById(ulListId);
+
+  ulList.innerHTML = "";
+  responseArray?.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    li.onclick = () => {
+      inputCtrl.value = item;
+      ulList.style.display = "none";
+      callSetupLiveSearchClearableInput(inputCtrlId, clearBtnCtrlId, callback);
+    };
+    ulList.appendChild(li);
+  });
+}
+//#region END Live Search Method

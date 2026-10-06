@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     INDEX_DB.dbName,
     INDEX_DB.storeName,
   );
-
   if (loginData) {
     populateAdminPage(loginData);
   } else {
@@ -170,8 +169,12 @@ async function initializedKhatabook() {
     "kbLiveSearchInputClrBtn",
     "kbLiveSearchInputULList",
     function (selectedText) {
-      selectedKBUser = selectedText.trim();
-      filterKBTableRows(selectedText);
+      if (selectedText) {
+        selectedKBUser = selectedText.trim();
+        filterKBTableRows(selectedText);
+      } else {
+        selectedKBUser = "";
+      }
     },
   );
 
@@ -209,7 +212,7 @@ async function viewHomePage() {
       request,
     );
 
-    if (response.status && response.data.isAdminAccess) {
+    if (response.status && response.isAdminAccess) {
       populateAdminPage(response);
     } else {
       SHOW_ERROR_POPUP(
@@ -241,10 +244,10 @@ function populateAdminPage(response) {
   debugger;
   SHOW_SPECIFIC_DIV("adminHomeContainer");
   //document.getElementById("loginName").textContent = response?.data?.name;
-  if (Array.isArray(response?.data?.data)) {
-    userDataArr = response?.data?.data;
+  if (Array.isArray(response?.data)) {
+    userDataArr = response?.data;
   }
-  initializedCustomerList(response?.data?.data.map((item) => item.name));
+  initializedCustomerList(response?.data.map((item) => item.name));
   initializedItemList();
 }
 
