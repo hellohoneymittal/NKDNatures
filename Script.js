@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     INDEX_DB.dbName,
     INDEX_DB.storeName,
   );
-
   if (loginData) {
     populateAdminPage(loginData);
   } else {
@@ -208,7 +207,10 @@ async function viewHomePage() {
     const request = {
       password: passwordInputValue.toString().trim().toLowerCase(),
     };
-    const response = await CALL_API("GET_ALL_USER_LIST_NEW", request);
+    const response = await CALL_API_WITH_CACHE(
+      "GET_ALL_USER_LIST_NEW",
+      request,
+    );
 
     if (response.status && response.isAdminAccess) {
       populateAdminPage(response);
