@@ -636,6 +636,7 @@ async function onSaleConfirmClick() {
       const downloadButton = document.getElementById("downloadPdfButton");
       downloadButton.onclick = () => downloadBillAsPDF(); // Attach PDF download function
     }
+    debugger;
     const updateStockRequest = {
       apiType: API_TYPE_CONSTANT.UPDATE_STOCK,
       data: "",

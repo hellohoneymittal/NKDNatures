@@ -208,12 +208,9 @@ async function viewHomePage() {
     const request = {
       password: passwordInputValue.toString().trim().toLowerCase(),
     };
-    const response = await CALL_API_WITH_CACHE(
-      "GET_ALL_USER_LIST_NEW",
-      request,
-    );
+    const response = await CALL_API("GET_ALL_USER_LIST_NEW", request);
 
-    if (response.status && response.data.isAdminAccess) {
+    if (response.status && response.isAdminAccess) {
       populateAdminPage(response);
     } else {
       SHOW_ERROR_POPUP(
@@ -245,10 +242,10 @@ function populateAdminPage(response) {
   debugger;
   SHOW_SPECIFIC_DIV("adminHomeContainer");
   //document.getElementById("loginName").textContent = response?.data?.name;
-  if (Array.isArray(response?.data?.data)) {
-    userDataArr = response?.data?.data;
+  if (Array.isArray(response?.data)) {
+    userDataArr = response?.data;
   }
-  initializedCustomerList(response?.data?.data.map((item) => item.name));
+  initializedCustomerList(response?.data.map((item) => item.name));
   initializedItemList();
 }
 

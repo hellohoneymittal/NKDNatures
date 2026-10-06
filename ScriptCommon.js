@@ -684,37 +684,54 @@ function daySuffix(day) {
 }
 
 async function API_HANDLER_AXIOS(request) {
+  const url = "https://natures-api.nkd-community-gzb.workers.dev/";
+
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
-    IsLoading(true); // Start loading
+    IsLoading(true);
 
     const jsonReq = JSON.stringify(request);
-    const response = await axios.post(url, jsonReq);
+
+    const response = await axios.post(url, jsonReq, {
+      timeout: 30000,
+    });
+
+    console.log("API STATUS:", response.status);
+    console.log("API DATA:", response.data);
+
     const data = response?.data;
-    IsLoading(false); // Stop loading
 
     if (data?.status) {
-      return data; // Resolve the data to be used by the caller
-    } else {
-      console.log("Error - ", data);
-      SHOW_ERROR_POPUP(
-        "Something went wrong, please contact any NKD Servants.",
-      );
+      return data;
     }
+
+    console.error("Unexpected API response:", data);
+
+    SHOW_ERROR_POPUP("Something went wrong, please contact any NKD Servants.");
+
+    return null;
   } catch (error) {
-    IsLoading(false); // Stop loading on error
-    console.log(error);
-    SHOW_ERROR_POPUP(error.message);
+    console.error("API ERROR:", {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+
+    SHOW_ERROR_POPUP(
+      error.response?.status
+        ? `API Error: ${error.response.status}`
+        : error.message,
+    );
+
+    return null;
   } finally {
-    IsLoading(false); // Stop loading regardless of success or error
+    IsLoading(false);
   }
 }
 
 async function API_HANDLER_WITHOUT_LOADING_AXIOS(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
 
     const jsonReq = JSON.stringify(request);
     const response = await axios.post(url, jsonReq);
@@ -736,8 +753,7 @@ async function API_HANDLER_WITHOUT_LOADING_AXIOS(request) {
 
 async function API_HANDLER(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
     IsLoading(true); // Start loading
 
     const fetchOptions = {
@@ -774,8 +790,7 @@ async function API_HANDLER(request) {
 
 async function API_HANDLER_WITH_APPLICATION_JSON_TYPE(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
     IsLoading(true); // Start loading
 
     const fetchOptions = {
@@ -812,8 +827,7 @@ async function API_HANDLER_WITH_APPLICATION_JSON_TYPE(request) {
 
 async function API_HANDLER_WITHOUT_LOADING(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyBpHFrjpU0Hx7RVDIIkMrQS9IIZDkebAqiw_-DxlHKNJYlQl6SalLLwg5VfVGcCt-p/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
 
     const fetchOptions = {
       method: "POST",
@@ -844,8 +858,8 @@ async function API_HANDLER_WITHOUT_LOADING(request) {
 
 async function API_HANDLER_GET(request) {
   try {
-    const url =
-      "https://script.google.com/macros/s/AKfycbyLOEEFs1J-GepV5Ma4N64mku6BWw1wa5ROebVDzYB5oF40BNkmawBnE9KQoGLgsL8W/exec";
+    const url = "https://natures-api.nkd-community-gzb.workers.dev/";
+
     IsLoading(true); // Start loading
 
     const queryString = new URLSearchParams(request).toString();
