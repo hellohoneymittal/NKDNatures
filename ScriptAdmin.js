@@ -625,7 +625,7 @@ async function onSaleConfirmClick() {
   console.log("Data for Sale:", dataForSale);
   debugger;
   if (dataForSale?.length > 0) {
-    const response = await CALL_API_CLOUDFLARE("CREATE_SALE_NEW", dataForSale);
+    const response = await CALL_API_CLOUDFLARE("CREATE_SALE", dataForSale);
     if (response?.status) {
       SHOW_SPECIFIC_DIV("billContainer");
       const downloadButton = document.getElementById("downloadPdfButton");
