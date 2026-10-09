@@ -207,7 +207,7 @@ async function viewHomePage() {
     const request = {
       password: passwordInputValue.toString().trim().toLowerCase(),
     };
-    const response = await CALL_API_WITH_CACHE(
+    const response = await CALL_API_CLOUDFLARE_WITH_CACHE(
       "GET_ALL_USER_LIST_NEW",
       request,
     );
@@ -257,12 +257,8 @@ async function logoutBtnClick() {
 }
 
 async function populateStock() {
-  const request = {
-    apiType: API_TYPE_CONSTANT.getStock,
-    request: "Stock",
-  };
   try {
-    const response = await API_HANDLER_AXIOS(request);
+    const response = await CALL_API_CLOUDFLARE(API_TYPE_CONSTANT.getStock, {});
     if (response) {
       rowStockReponse = response.data;
       return response.data;

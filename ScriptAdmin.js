@@ -623,14 +623,9 @@ function combineItemsByNameForWhatsapp() {
 async function onSaleConfirmClick() {
   const dataForSale = prepareInputDataForSale();
   console.log("Data for Sale:", dataForSale);
-
+  debugger;
   if (dataForSale?.length > 0) {
-    const request = {
-      inputData: JSON.stringify(dataForSale),
-      apiType: API_TYPE_CONSTANT.createSale,
-    };
-
-    const response = await API_HANDLER_AXIOS(request);
+    const response = await CALL_API_CLOUDFLARE("CREATE_SALE_NEW", dataForSale);
     if (response?.status) {
       SHOW_SPECIFIC_DIV("billContainer");
       const downloadButton = document.getElementById("downloadPdfButton");
