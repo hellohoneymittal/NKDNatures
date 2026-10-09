@@ -14,6 +14,8 @@ const SAVE_DONOR_MASTER_DATA =
   "https://script.google.com/macros/s/AKfycbx_pga1XERDEQSFqw9p-0JeFFzxvNi_sBVN4yPvurG3m7jrOY1mfDeWZ4t2NNEOhOG9ug/exec";
 const GET_PENDING_DONOR_LIST =
   "https://script.google.com/macros/s/AKfycbx_pga1XERDEQSFqw9p-0JeFFzxvNi_sBVN4yPvurG3m7jrOY1mfDeWZ4t2NNEOhOG9ug/exec";
+const BASE_URL_CLOUD_FLARE =
+  "https://natures-api.nkd-community-gzb.workers.dev/";
 
 const IMAGE_CONSTANT = {
   clickHere: "https://i.postimg.cc/g0LSdBpL/Click-Here.jpg",
