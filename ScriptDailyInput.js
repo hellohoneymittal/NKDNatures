@@ -52,7 +52,7 @@ async function submitDailyInput() {
     return;
   }
 
-  const response = await CALL_API_CLOUDFLARE("INSERT_DAILY_INPUT", formData);
+  const response = await CALL_API_CF("INSERT_DAILY_INPUT", formData);
   if (response?.status) {
     SHOW_SUCCESS_POPUP("Record Inserted, thank you!");
     clearDailyInputFieldValue();

@@ -1315,12 +1315,11 @@ async function CALL_API_WITH_CACHE(
   return response;
 }
 
-async function CALL_API_CLOUDFLARE(
-  apiType,
-  data,
-  timeout = 50000,
-  showLoading = true,
-) {
+let currentCloudflareWriteRequestId = null;
+
+function GENERATE_IDEMPOTENCY_KEY() {}
+
+async function CALL_API_CF(apiType, data, timeout = 50000, showLoading = true) {
   const onlineRes = await IS_ONLINE();
 
   if (!onlineRes) {
@@ -1384,15 +1383,11 @@ async function CALL_API_CLOUDFLARE(
   }
 }
 
-async function CALL_API_CLOUDFLARE_WITHOUT_LOADING(
-  apiType,
-  data,
-  timeout = 50000,
-) {
-  return CALL_API_CLOUDFLARE(apiType, data, timeout, false);
+async function CALL_API_CF_WITHOUT_LOADING(apiType, data, timeout = 50000) {
+  return CALL_API_CF(apiType, data, timeout, false);
 }
 
-async function CALL_API_CLOUDFLARE_WITH_CACHE(
+async function CALL_API_CF_WITH_CACHE(
   apiType,
   inputData = {},
   cacheHours = null,
@@ -1413,7 +1408,7 @@ async function CALL_API_CLOUDFLARE_WITH_CACHE(
 
   console.log(`Cache Miss : ${apiType}`);
 
-  const response = await CALL_API_CLOUDFLARE(apiType, inputData);
+  const response = await CALL_API_CF(apiType, inputData);
 
   if (response) {
     await DB_SET(
@@ -1423,6 +1418,30 @@ async function CALL_API_CLOUDFLARE_WITH_CACHE(
       INDEX_DB.storeName,
       cacheHours,
     );
+  }
+
+  return response;
+}
+
+async function CALL_API_WRITE_CLOUDFLARE(
+  apiType,
+  inputData = {},
+  timeout = 50000,
+) {
+  if (!currentCloudflareWriteRequestId) {
+    currentCloudflareWriteRequestId = GENERATE_IDEMPOTENCY_KEY();
+  }
+
+  const writeData = {
+    ...inputData,
+    idempotencyKey: currentCloudflareWriteRequestId,
+  };
+
+  const response = await CALL_API_CF(apiType, writeData, timeout);
+
+  // Clear the key only after confirmed success.
+  if (response?.status === true || response?.status === "success") {
+    currentCloudflareWriteRequestId = null;
   }
 
   return response;
