@@ -4,7 +4,7 @@ let ProductionListArr = [];
 let formattedTodayDate = "";
 
 async function initializedProductionItemList() {
-  const response = await CALL_API_CLOUDFLARE("GET_PRODUCT_LIST", []);
+  const response = await CALL_API_CF("GET_PRODUCT_LIST", []);
   productionResponseRow = response?.data;
   setupLiveSearch(
     "adminProductionInput",
@@ -126,7 +126,7 @@ function deleteRow(button) {
 
 async function submitProduction() {
   if (ProductionListArr?.length > 0) {
-    const response = await CALL_API_CLOUDFLARE(
+    const response = await CALL_API_CF(
       "SAVE_PRODUCTION_DATA",
       ProductionListArr,
     );
@@ -134,7 +134,7 @@ async function submitProduction() {
     if (response?.status) {
       const tableBody = document.getElementById("piTableTBody");
       tableBody.innerHTML = "";
-      await CALL_API_CLOUDFLARE("UPDATE_STOCK", {});
+      await CALL_API_CF("UPDATE_STOCK", {});
       await reInitializedItemList();
       SHOW_SUCCESS_POPUP("Production Data added successfully!");
       resetProductionData();

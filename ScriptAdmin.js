@@ -139,7 +139,7 @@ async function initializedItemList() {
 
 async function reInitializedItemList() {
   try {
-    const response = await CALL_API_CLOUDFLARE("GET_STOCK", {});
+    const response = await CALL_API_CF("GET_STOCK", {});
     if (response?.status) {
       const data = response?.data;
       let itemData = preprocessItemData(data);
@@ -621,7 +621,7 @@ async function onSaleConfirmClick() {
   console.log("Data for Sale:", dataForSale);
   debugger;
   if (dataForSale?.length > 0) {
-    const response = await CALL_API_CLOUDFLARE("CREATE_SALE", dataForSale);
+    const response = await CALL_API_CF("CREATE_SALE", dataForSale);
     console.log("Sale API Response:", response);
     if (response?.status) {
       SHOW_SPECIFIC_DIV("billContainer");
@@ -629,7 +629,7 @@ async function onSaleConfirmClick() {
       downloadButton.onclick = () => downloadBillAsPDF(); // Attach PDF download function
     }
 
-    await CALL_API_CLOUDFLARE_WITHOUT_LOADING("UPDATE_STOCK", {});
+    await CALL_API_CF_WITHOUT_LOADING("UPDATE_STOCK", {});
   } else {
     SHOW_ERROR_POPUP("Click the + button to add new data.");
   }
@@ -814,7 +814,7 @@ async function newUserInsert() {
   };
   const onlineRes = await IS_ONLINE();
   if (onlineRes) {
-    CALL_API_CLOUDFLARE_WITHOUT_LOADING("ADD_NEW_USER", request);
+    CALL_API_CF_WITHOUT_LOADING("ADD_NEW_USER", request);
     adminCustNameCtrl.value = newUserTxtBoxCtrl?.value;
     SHOW_SUCCESS_POPUP("User Inserted Successfully!");
     SHOW_SPECIFIC_DIV("adminHomeContainer");

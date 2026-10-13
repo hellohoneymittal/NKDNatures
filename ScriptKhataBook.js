@@ -31,10 +31,7 @@ async function submitKBAmount() {
   };
   const onlineRes = await IS_ONLINE();
   if (onlineRes) {
-    CALL_API_CLOUDFLARE_WITHOUT_LOADING(
-      "UPDATE_CUST_CREDIT_BALANCE",
-      inputData,
-    );
+    CALL_API_CF_WITHOUT_LOADING("UPDATE_CUST_CREDIT_BALANCE", inputData);
     const updatedData = resetKhataBookAndUpdateTable(inputData);
     let filteredData = preprocessKBGridData(updatedData);
     fillKhataBookGridData(filteredData, "kbTableTHead", "kbTableTBody");

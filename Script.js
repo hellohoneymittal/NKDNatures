@@ -96,10 +96,7 @@ async function onKBWhatsappClick(data) {
   const request = {
     sheetId: selecteKhataBookUser?.SheetId,
   };
-  const response = await CALL_API_CLOUDFLARE(
-    "GET_KHATA_BOOK_BY_USER_ID",
-    request,
-  );
+  const response = await CALL_API_CF("GET_KHATA_BOOK_BY_USER_ID", request);
   console.log(response);
   renderKhataBookWhatsappMessage(
     selectedUserObj?.mobile,
@@ -182,10 +179,7 @@ async function initializedKhatabook() {
   );
 
   const request = {};
-  const response = await CALL_API_CLOUDFLARE(
-    "GET_KHATA_BOOK_USER_LIST",
-    request,
-  );
+  const response = await CALL_API_CF("GET_KHATA_BOOK_USER_LIST", request);
   khataBookUserGridData = response?.data;
   let modifiedData = preprocessKBGridData(khataBookUserGridData);
   fillKhataBookGridData(modifiedData, "kbTableTHead", "kbTableTBody");
@@ -198,8 +192,7 @@ async function initializedKhatabook() {
   );
 }
 async function viewHomePage() {
-  const isAdmin = true;
-  // const isAdmin = document.getElementById("permissionRadioAdmin").checked;
+  const isAdmin = document.getElementById("permissionRadioAdmin").checked;
   const passwordInputValue =
     document.getElementById("passwordInputAdmin").value;
   if (!passwordInputValue) {
@@ -210,10 +203,7 @@ async function viewHomePage() {
     const request = {
       password: passwordInputValue.toString().trim().toLowerCase(),
     };
-    const response = await CALL_API_CLOUDFLARE_WITH_CACHE(
-      "GET_ALL_USER_LIST",
-      request,
-    );
+    const response = await CALL_API_CF_WITH_CACHE("GET_ALL_USER_LIST", request);
 
     if (response?.status && response?.data?.isAdminAccess) {
       populateAdminPage(response?.data);
@@ -226,10 +216,7 @@ async function viewHomePage() {
     const request = {
       password: passwordInputValue.toString().trim().toLowerCase(),
     };
-    const response = await CALL_API_CLOUDFLARE(
-      "GET_USER_INFO_BY_PASSWORD",
-      request,
-    );
+    const response = await CALL_API_CF("GET_USER_INFO_BY_PASSWORD", request);
     if (response?.data?.userDetails) {
       localStorage.setItem(
         "userDetails",
@@ -263,7 +250,7 @@ async function logoutBtnClick() {
 
 async function populateStock() {
   try {
-    const response = await CALL_API_CLOUDFLARE("GET_STOCK", {});
+    const response = await CALL_API_CF("GET_STOCK", {});
     if (response) {
       rowStockReponse = response.data;
       return response.data;
@@ -490,7 +477,7 @@ function animateBell() {
 
 async function processNatureGSTBillRequest() {
   SHOW_INFO_POPUP("Request submitted. I will proceed shortly.");
-  const response = await CALL_API_CLOUDFLARE_WITHOUT_LOADING(
+  const response = await CALL_API_CF_WITHOUT_LOADING(
     "GENERATE_NATURES_GST_INVOICE",
     {},
   );
