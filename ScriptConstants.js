@@ -16,6 +16,7 @@ const GET_PENDING_DONOR_LIST =
   "https://script.google.com/macros/s/AKfycbx_pga1XERDEQSFqw9p-0JeFFzxvNi_sBVN4yPvurG3m7jrOY1mfDeWZ4t2NNEOhOG9ug/exec";
 const BASE_URL_CLOUD_FLARE =
   "https://natures-api.nkd-community-gzb.workers.dev/";
+const APP_NAME = "NATURES";
 
 const IMAGE_CONSTANT = {
   clickHere: "https://i.postimg.cc/g0LSdBpL/Click-Here.jpg",
@@ -31,25 +32,17 @@ const IMAGE_CONSTANT = {
 };
 
 const API_TYPE_CONSTANT = {
-  getStock: "GET_STOCK",
-  getAllUserList: "GET_ALL_USER_LIST",
-  getProductList: "GET_PRODUCT_LIST",
-  saveProductionData: "SAVE_PRODUCTION_DATA",
   createSale: "CREATE_SALE",
-  updateStockViaSale: "UPDATE_STOCK_VIA_SALE",
+
   updateActivityMaster: "UPDATE_ACTIVITY_MASTER",
-  insertDailyInput: "INSERT_DAILY_INPUT",
-  ADD_NEW_USER: "ADD_NEW_USER",
+
   ADD_LIB_USER: "ADD_LIB_USER",
   LIB_USER_LIST: "LIB_USER_LIST",
   LIB_BOOK_LIST: "LIB_BOOK_LIST",
   LIB_ISSUE_BOOK: "LIB_ISSUE_BOOK",
-  GET_KHATA_BOOK_USER_LIST: "GET_KHATA_BOOK_USER_LIST",
-  UPDATE_CUST_CREDIT_BALANCE: "UPDATE_CUST_CREDIT_BALANCE",
-  GET_KHATA_BOOK_BY_USER_ID: "GET_KHATA_BOOK_BY_USER_ID",
-  GET_USER_INFO_BY_PASSWORD: "GET_USER_INFO_BY_PASSWORD",
+
   SAVE_USER_ORDER_DATA: "SAVE_USER_ORDER_DATA",
-  UPDATE_STOCK: "UPDATE_STOCK",
+
   CREATE_SALE_NKD: "CREATE_SALE_NKD",
 };
 

@@ -1315,8 +1315,12 @@ async function CALL_API_WITH_CACHE(
   return response;
 }
 
-async function CALL_API_CLOUDFLARE(apiType, data, timeout = 30000) {
-  debugger;
+async function CALL_API_CLOUDFLARE(
+  apiType,
+  data,
+  timeout = 50000,
+  showLoading = true,
+) {
   const onlineRes = await IS_ONLINE();
 
   if (!onlineRes) {
@@ -1324,18 +1328,21 @@ async function CALL_API_CLOUDFLARE(apiType, data, timeout = 30000) {
   }
 
   const request = {
-    apiType: apiType,
+    apiType,
     inputData: data,
+    appName: APP_NAME,
   };
 
   const apiName = apiType.toLowerCase();
-
   const url = `${BASE_URL_CLOUD_FLARE}${apiName}`;
+
   try {
-    IsLoading(true);
+    if (showLoading) {
+      IsLoading(true);
+    }
 
     const response = await axios.post(url, request, {
-      timeout: timeout,
+      timeout,
       headers: {
         "Content-Type": "application/json",
       },
@@ -1371,8 +1378,18 @@ async function CALL_API_CLOUDFLARE(apiType, data, timeout = 30000) {
 
     return null;
   } finally {
-    IsLoading(false);
+    if (showLoading) {
+      IsLoading(false);
+    }
   }
+}
+
+async function CALL_API_CLOUDFLARE_WITHOUT_LOADING(
+  apiType,
+  data,
+  timeout = 50000,
+) {
+  return CALL_API_CLOUDFLARE(apiType, data, timeout, false);
 }
 
 async function CALL_API_CLOUDFLARE_WITH_CACHE(
@@ -1409,66 +1426,6 @@ async function CALL_API_CLOUDFLARE_WITH_CACHE(
   }
 
   return response;
-}
-
-async function CALL_API_CLOUDFLARE_WITHOUT_LOADING(
-  apiType,
-  data,
-  timeout = 30000,
-) {
-  const onlineRes = await IS_ONLINE();
-
-  if (!onlineRes) {
-    return null;
-  }
-
-  const request = {
-    apiType: apiType,
-    inputData: data,
-  };
-
-  const apiName = apiType.toLowerCase();
-
-  const url = `${BASE_URL_CLOUD_FLARE}${apiName}`;
-
-  try {
-    const response = await axios.post(url, request, {
-      timeout: timeout,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    console.log("API STATUS:", response.status);
-    console.log("API DATA:", response.data);
-
-    const result = response?.data;
-
-    if (result?.status) {
-      return result;
-    }
-
-    console.error("Unexpected API response:", result);
-
-    SHOW_ERROR_POPUP("Something went wrong, please contact any NKD Servants.");
-
-    return null;
-  } catch (error) {
-    console.error("API ERROR:", {
-      message: error.message,
-      code: error.code,
-      status: error.response?.status,
-      data: error.response?.data,
-    });
-
-    SHOW_ERROR_POPUP(
-      error.response?.status
-        ? `API Error: ${error.response.status}`
-        : error.message,
-    );
-
-    return null;
-  }
 }
 
 function openLeftNavBar(leftSideNavId, menuLabel) {

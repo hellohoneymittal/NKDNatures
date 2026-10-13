@@ -30,7 +30,6 @@ async function issueLibBook() {
 }
 
 async function initializedLibCustomerList() {
-  debugger;
   setupLiveSearch(
     "libCustName",
     "libCustNameClrBtn",

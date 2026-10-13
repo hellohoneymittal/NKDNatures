@@ -4,10 +4,7 @@ let ProductionListArr = [];
 let formattedTodayDate = "";
 
 async function initializedProductionItemList() {
-  const request = {
-    apiType: API_TYPE_CONSTANT.getProductList,
-  };
-  const response = await API_HANDLER(request);
+  const response = await CALL_API_CLOUDFLARE("GET_PRODUCT_LIST", []);
   productionResponseRow = response?.data;
   setupLiveSearch(
     "adminProductionInput",
@@ -15,14 +12,14 @@ async function initializedProductionItemList() {
     "adminProductionInputULList",
     function (selectedText) {
       selectedProductionItem = selectedText;
-    }
+    },
   );
 
   initializedLiveSearchControl(
     "adminProductionInput",
     "adminProductionInputClrBtn",
     "adminProductionInputULList",
-    response?.data.map((item) => `${item.product}`)
+    response?.data.map((item) => `${item.product}`),
   );
 
   const dateInput = document.getElementById("batchDate");
@@ -56,7 +53,7 @@ function productionInput() {
   }
 
   let existingItemIndex = ProductionListArr.findIndex(
-    (item) => item.selectedItem === selectedItem
+    (item) => item.selectedItem === selectedItem,
   );
   if (existingItemIndex !== -1) {
     // Update the existing entry
@@ -84,7 +81,7 @@ function productionInput() {
       transactionType: "Production",
       location: "Natures",
       category: productionResponseRow.find(
-        (item) => item.product.trim() === selectedItem.trim()
+        (item) => item.product.trim() === selectedItem.trim(),
       )?.category,
     });
 
@@ -129,23 +126,19 @@ function deleteRow(button) {
 
 async function submitProduction() {
   if (ProductionListArr?.length > 0) {
-    const request = {
-      productionData: JSON.stringify(ProductionListArr),
-      apiType: API_TYPE_CONSTANT.saveProductionData,
-    };
-
-    const response = await API_HANDLER(request);
+    const response = await CALL_API_CLOUDFLARE(
+      "SAVE_PRODUCTION_DATA",
+      ProductionListArr,
+    );
+    debugger;
     if (response?.status) {
       const tableBody = document.getElementById("piTableTBody");
       tableBody.innerHTML = "";
+      await CALL_API_CLOUDFLARE("UPDATE_STOCK", {});
+      await reInitializedItemList();
       SHOW_SUCCESS_POPUP("Production Data added successfully!");
+      resetProductionData();
     }
-    const updateActivityMasterRequest = {
-      apiType: API_TYPE_CONSTANT.UPDATE_STOCK,
-    };
-    await API_HANDLER(updateActivityMasterRequest);
-    await reInitializedItemList();
-    resetProductionData();
   } else {
     SHOW_ERROR_POPUP("Click the + button to add new data.");
   }

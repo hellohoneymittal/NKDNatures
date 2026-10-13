@@ -12,7 +12,7 @@ function getYesterdayDate() {
 function resetDailyInputFields() {
   SHOW_CONFIRMATION_POPUP(
     "Do you want to reset , Date Control set to Yesterday ?",
-    clearDailyInputFieldValue
+    clearDailyInputFieldValue,
   );
 }
 
@@ -30,7 +30,7 @@ async function submitDailyInput() {
   const adminBankSaleInput =
     document.getElementById("adminBankSaleInput").value;
   const adminDebtorsAmountInput = document.getElementById(
-    "adminDebtorsAmountInput"
+    "adminDebtorsAmountInput",
   ).value;
 
   // Create an object to store all values
@@ -52,13 +52,7 @@ async function submitDailyInput() {
     return;
   }
 
-  const request = {
-    inputData: formData,
-    apiType: API_TYPE_CONSTANT.insertDailyInput,
-  };
-  console.log(request);
-
-  const response = await API_HANDLER(request);
+  const response = await CALL_API_CLOUDFLARE("INSERT_DAILY_INPUT", formData);
   if (response?.status) {
     SHOW_SUCCESS_POPUP("Record Inserted, thank you!");
     clearDailyInputFieldValue();

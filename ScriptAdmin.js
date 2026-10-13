@@ -138,14 +138,10 @@ async function initializedItemList() {
 }
 
 async function reInitializedItemList() {
-  const request = {
-    apiType: API_TYPE_CONSTANT.getStock,
-    request: "Stock",
-  };
   try {
-    const response = await API_HANDLER_WITHOUT_LOADING_AXIOS(request);
-    if (response) {
-      const data = response.data;
+    const response = await CALL_API_CLOUDFLARE("GET_STOCK", {});
+    if (response?.status) {
+      const data = response?.data;
       let itemData = preprocessItemData(data);
 
       itemArray = itemData.map(
@@ -632,12 +628,8 @@ async function onSaleConfirmClick() {
       const downloadButton = document.getElementById("downloadPdfButton");
       downloadButton.onclick = () => downloadBillAsPDF(); // Attach PDF download function
     }
-    debugger;
-    const updateStockRequest = {
-      apiType: API_TYPE_CONSTANT.UPDATE_STOCK,
-      data: "",
-    };
-    await API_HANDLER_WITHOUT_LOADING_AXIOS(updateStockRequest);
+
+    await CALL_API_CLOUDFLARE_WITHOUT_LOADING("UPDATE_STOCK", {});
   } else {
     SHOW_ERROR_POPUP("Click the + button to add new data.");
   }
@@ -822,7 +814,7 @@ async function newUserInsert() {
   };
   const onlineRes = await IS_ONLINE();
   if (onlineRes) {
-    CALL_API_WITHOUT_LOADING(API_TYPE_CONSTANT.ADD_NEW_USER, request);
+    CALL_API_CLOUDFLARE_WITHOUT_LOADING("ADD_NEW_USER", request);
     adminCustNameCtrl.value = newUserTxtBoxCtrl?.value;
     SHOW_SUCCESS_POPUP("User Inserted Successfully!");
     SHOW_SPECIFIC_DIV("adminHomeContainer");
