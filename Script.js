@@ -345,6 +345,14 @@ function renderWhatsappMessage(number, selectedItem) {
   }
 
   billMessage += `*Grand Total: ₹${grandTotal.toFixed(2)}*\n\n`;
+  if (grandTotal > 0) {
+    let link =
+      "upi://pay?pa=vyapar.173204529590@hdfcbank&am=" +
+      grandTotal.toFixed(2) +
+      "&cu=INR";
+
+    billMessage += "\n💳 *Pay Now:*\n" + link + "\n\n";
+  }
   billMessage += `Chant and be Happy!\n🛍️ Hare Krishna 🛍️`;
 
   let message = encodeURIComponent(billMessage);
