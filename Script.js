@@ -4,12 +4,12 @@ let selectedKBUser = "";
 let rowStockReponse = [];
 document.addEventListener("DOMContentLoaded", async function () {
   const loginData = await DB_GET(
-    "GET_ALL_USER_LIST_NEW",
+    "GET_ALL_USER_LIST",
     INDEX_DB.dbName,
     INDEX_DB.storeName,
   );
-  if (loginData) {
-    populateAdminPage(loginData);
+  if (loginData?.status) {
+    populateAdminPage(loginData?.data);
   } else {
     SHOW_SPECIFIC_DIV("mainContainer");
   }
@@ -96,7 +96,10 @@ async function onKBWhatsappClick(data) {
   const request = {
     sheetId: selecteKhataBookUser?.SheetId,
   };
-  const response = await CALL_API("GET_KHATA_BOOK_BY_USER_ID", request);
+  const response = await CALL_API_CLOUDFLARE(
+    "GET_KHATA_BOOK_BY_USER_ID",
+    request,
+  );
   console.log(response);
   renderKhataBookWhatsappMessage(
     selectedUserObj?.mobile,
@@ -179,8 +182,8 @@ async function initializedKhatabook() {
   );
 
   const request = {};
-  const response = await CALL_API(
-    API_TYPE_CONSTANT.GET_KHATA_BOOK_USER_LIST,
+  const response = await CALL_API_CLOUDFLARE(
+    "GET_KHATA_BOOK_USER_LIST",
     request,
   );
   khataBookUserGridData = response?.data;
@@ -208,12 +211,12 @@ async function viewHomePage() {
       password: passwordInputValue.toString().trim().toLowerCase(),
     };
     const response = await CALL_API_CLOUDFLARE_WITH_CACHE(
-      "GET_ALL_USER_LIST_NEW",
+      "GET_ALL_USER_LIST",
       request,
     );
 
-    if (response.status && response.isAdminAccess) {
-      populateAdminPage(response);
+    if (response?.status && response?.data?.isAdminAccess) {
+      populateAdminPage(response?.data);
     } else {
       SHOW_ERROR_POPUP(
         "Authentication failed. You might not have admin privileges, or the password entered is invalid.",
@@ -223,7 +226,10 @@ async function viewHomePage() {
     const request = {
       password: passwordInputValue.toString().trim().toLowerCase(),
     };
-    const response = await CALL_API("GET_USER_INFO_BY_PASSWORD", request);
+    const response = await CALL_API_CLOUDFLARE(
+      "GET_USER_INFO_BY_PASSWORD",
+      request,
+    );
     if (response?.data?.userDetails) {
       localStorage.setItem(
         "userDetails",
@@ -241,7 +247,6 @@ async function viewHomePage() {
 }
 
 function populateAdminPage(response) {
-  debugger;
   SHOW_SPECIFIC_DIV("adminHomeContainer");
   //document.getElementById("loginName").textContent = response?.data?.name;
   if (Array.isArray(response?.data)) {
@@ -258,7 +263,7 @@ async function logoutBtnClick() {
 
 async function populateStock() {
   try {
-    const response = await CALL_API_CLOUDFLARE(API_TYPE_CONSTANT.getStock, {});
+    const response = await CALL_API_CLOUDFLARE("GET_STOCK", {});
     if (response) {
       rowStockReponse = response.data;
       return response.data;
@@ -485,7 +490,7 @@ function animateBell() {
 
 async function processNatureGSTBillRequest() {
   SHOW_INFO_POPUP("Request submitted. I will proceed shortly.");
-  const response = await CALL_API_WITHOUT_LOADING(
+  const response = await CALL_API_CLOUDFLARE_WITHOUT_LOADING(
     "GENERATE_NATURES_GST_INVOICE",
     {},
   );

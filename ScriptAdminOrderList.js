@@ -14,7 +14,7 @@ async function initializedAdminOrderList() {
   populateListViewForObjectOfArray(
     "adminOrderListView",
     filteredData,
-    onUserOrderProceed
+    onUserOrderProceed,
   );
 }
 
@@ -39,7 +39,7 @@ function populateListViewForObjectOfArray(containerId, data, onProceed) {
     const totalBillAmount = billItems?.[0]?.TotalBillCost || "";
     header.className = "uo-bill-header";
     header.textContent = `${billKey} - ${totalBillAmount}`;
-    debugger;
+
     if (billItems?.[0]?.OrderStatus === "Received") {
       header.style.backgroundColor = "Orange";
     } else if (billItems?.[0]?.OrderStatus === "Ready") {
@@ -60,7 +60,7 @@ function populateListViewForObjectOfArray(containerId, data, onProceed) {
     function recalcTotal() {
       const totalBill = billItems.reduce(
         (sum, i) => sum + parseFloat(i.Total || 0),
-        0
+        0,
       );
       billItems.forEach((i) => {
         i.TotalBillCost = totalBill.toString();
@@ -157,7 +157,7 @@ function populateListViewForObjectOfArray(containerId, data, onProceed) {
 
       deleteBtn.addEventListener("click", () => {
         const confirmDelete = confirm(
-          `Are you sure you want to delete "${item.Key}"?`
+          `Are you sure you want to delete "${item.Key}"?`,
         );
         if (confirmDelete) {
           // array से item हटाओ
@@ -267,7 +267,7 @@ async function onUserOrderProceed(billKey, billItems, orderType = "orderSale") {
       "leftSideNavAdmin",
       "leftSideNav-itemContainer",
       "NKD Sale",
-      navCallBackMethod
+      navCallBackMethod,
     );
 
     populateSaleFromUserOrder();

@@ -6,7 +6,7 @@ async function initializedUserPastOrdersList() {
     const validItems = items.filter(
       (item) =>
         item.OrderStatus !== "Deleted" &&
-        item.Name.trim().toString() === userName.trim().toString()
+        item.Name.trim().toString() === userName.trim().toString(),
     );
     if (validItems.length > 0) {
       filteredData[key] = validItems;
@@ -15,14 +15,14 @@ async function initializedUserPastOrdersList() {
   populateListViewForObjectOfArrayUserPastOrder(
     "adminUserPastOrderListView",
     filteredData,
-    onUserOrderProceed
+    onUserOrderProceed,
   );
 }
 
 function populateListViewForObjectOfArrayUserPastOrder(
   containerId,
   data,
-  onProceed
+  onProceed,
 ) {
   const listContainer = document.getElementById(containerId);
 
@@ -44,7 +44,7 @@ function populateListViewForObjectOfArrayUserPastOrder(
     const totalBillAmount = billItems?.[0]?.TotalBillCost || "";
     header.className = "uo-bill-header";
     header.textContent = `${billKey} - ${totalBillAmount}`;
-    debugger;
+
     if (billItems?.[0]?.OrderStatus === "Received") {
       header.style.backgroundColor = "Orange";
     } else if (billItems?.[0]?.OrderStatus === "Ready") {
@@ -65,7 +65,7 @@ function populateListViewForObjectOfArrayUserPastOrder(
     function recalcTotal() {
       const totalBill = billItems.reduce(
         (sum, i) => sum + parseFloat(i.Total || 0),
-        0
+        0,
       );
       billItems.forEach((i) => {
         i.TotalBillCost = totalBill.toString();
