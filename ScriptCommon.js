@@ -162,6 +162,108 @@ async function DB_CLEAR(dbName = "AppDB", storeName = "store") {
   });
 }
 
+// Click ripple for buttons and selectable pills (styled by .ripple in CSS)
+document.addEventListener("pointerdown", function (event) {
+  const target = event.target.closest("button, .opt-card, .role-switch__opt");
+  if (
+    !target ||
+    target.disabled ||
+    target.classList.contains("liveSearchClearBtn")
+  ) {
+    return;
+  }
+  const rect = target.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height) * 2;
+  const ripple = document.createElement("span");
+  ripple.className = "ripple";
+  ripple.style.width = `${size}px`;
+  ripple.style.height = `${size}px`;
+  ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
+  ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
+  target.appendChild(ripple);
+  ripple.addEventListener("animationend", () => ripple.remove());
+});
+
+// Date fields: calendar tile on the left, a chip on the right saying what
+// the date is ("Today", "Yesterday", "Thu · 3 days ago"); the whole field
+// opens the picker.
+const DATE_FIELD_ICON =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>';
+
+function describeDateValue(value) {
+  if (!value) return { text: "Pick a date", tone: "empty" };
+  const [y, m, d] = value.split("-").map(Number);
+  const picked = new Date(y, m - 1, d);
+  if (isNaN(picked)) return { text: "", tone: "empty" };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Math.round((picked - today) / 86400000);
+  const weekday = picked.toLocaleDateString("en-IN", { weekday: "short" });
+  if (days === 0) return { text: "Today", tone: "today" };
+  if (days === -1) return { text: "Yesterday", tone: "past" };
+  if (days === 1) return { text: "Tomorrow", tone: "future" };
+  return days < 0
+    ? { text: `${weekday} · ${-days} days ago`, tone: "past" }
+    : { text: `${weekday} · in ${days} days`, tone: "future" };
+}
+
+function updateDateFieldMeta(input) {
+  const meta = input.parentElement?.querySelector(".date-field__meta");
+  if (!meta) return;
+  const info = describeDateValue(input.value);
+  meta.textContent = info.text;
+  meta.className = `date-field__meta is-${info.tone}`;
+}
+
+function enhanceDateInput(input) {
+  if (input.dataset.enhanced) return;
+  input.dataset.enhanced = "1";
+
+  const wrap = document.createElement("div");
+  wrap.className = "date-field";
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+
+  const icon = document.createElement("span");
+  icon.className = "date-field__icon";
+  icon.innerHTML = DATE_FIELD_ICON;
+  wrap.insertBefore(icon, input);
+
+  const meta = document.createElement("span");
+  meta.className = "date-field__meta";
+  meta.setAttribute("aria-hidden", "true");
+  wrap.appendChild(meta);
+
+  ["input", "change", "blur"].forEach((type) =>
+    input.addEventListener(type, () => updateDateFieldMeta(input)),
+  );
+
+  // the app also fills dates from code (e.g. yesterday for Daily Input):
+  // keep the chip in sync with those writes too
+  const descriptor = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value",
+  );
+  if (descriptor?.set) {
+    Object.defineProperty(input, "value", {
+      configurable: true,
+      get() {
+        return descriptor.get.call(this);
+      },
+      set(newValue) {
+        descriptor.set.call(this, newValue);
+        updateDateFieldMeta(this);
+      },
+    });
+  }
+
+  updateDateFieldMeta(input);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('input[type="date"]').forEach(enhanceDateInput);
+});
+
 function formatDuration(startTimestamp, endTimestamp) {
   // Calculate the difference in milliseconds
   const durationMs = endTimestamp - startTimestamp;
@@ -651,6 +753,12 @@ function exportTableToExcel(tableId, filename = "data.xlsx") {
     data.push(rowData);
   });
 
+  // Empty table (data not loaded yet): nothing to export
+  if (!data.length || !data[0].length) {
+    SHOW_INFO_POPUP("No data to download yet.");
+    return;
+  }
+
   // Create a worksheet and workbook
   let ws = XLSX.utils.aoa_to_sheet(data); // aoa_to_sheet converts 2D array to sheet
   let wb = XLSX.utils.book_new();
@@ -894,6 +1002,13 @@ function SHOW_SPECIFIC_DIV(divId) {
     popup.style.display = "none";
   });
 
+  // The login screen hides the app header; the header actions follow the screen
+  document.body.classList.toggle("is-login", divId === "mainContainer");
+  document.body.dataset.screen = divId;
+  hideAllNavs();
+  syncHeaderMenuLabel();
+  restoreDockedNav();
+
   // Show the specific div with the provided divId
   const targetDiv = document.getElementById(divId);
   if (targetDiv) {
@@ -911,6 +1026,13 @@ function SHOW_SPECIFIC_DIV_WITH_BLOCK(divId) {
   allPopups.forEach((popup) => {
     popup.style.display = "none";
   });
+
+  // The login screen hides the app header; the header actions follow the screen
+  document.body.classList.toggle("is-login", divId === "mainContainer");
+  document.body.dataset.screen = divId;
+  hideAllNavs();
+  syncHeaderMenuLabel();
+  restoreDockedNav();
 
   // Show the specific div with the provided divId
   const targetDiv = document.getElementById(divId);
@@ -1135,22 +1257,39 @@ function SHOW_CONFIRMATION_GRID_POPUP(
   gridContainer.innerHTML = "";
   statusTextElement.textContent = statusText;
 
-  // Create the table element and headers dynamically
+  // Head: title, "n items · customer", and the amount from statusText
+  // (e.g. "Summary - ₹198.00") as a big total chip
+  const amountMatch = String(statusText).match(/₹\s*[\d,]+(?:\.\d+)?/);
+  const amountText = amountMatch ? amountMatch[0].replace(/\s+/g, "") : "";
+  const customer =
+    document.getElementById("adminCustName")?.value.trim() || "";
+  const count = gridData.length;
+  document.getElementById("confirmationGridTitle").textContent = amountText
+    ? "Review bill"
+    : statusText || "Review";
+  document.getElementById("confirmationGridSub").textContent = [
+    `${count} ${count === 1 ? "item" : "items"}`,
+    customer,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const totalChip = document.getElementById("confirmationGridTotal");
+  totalChip.textContent = amountText;
+  totalChip.style.display = amountText ? "" : "none";
+
+  // Create the table element and headers dynamically (plain text cells:
+  // downloadBillAsPDF() reads them back)
   const table = document.createElement("table");
-  table.style.width = "100%";
-  table.style.borderCollapse = "collapse";
 
   const thead = document.createElement("thead");
   thead.id = "confirmationGridTHead";
   const headerRow = document.createElement("tr");
 
   // Add table headers dynamically from columnNames array
-  columnNames.forEach((column) => {
+  columnNames.forEach((column, index) => {
     const th = document.createElement("th");
     th.textContent = column.displayName; // Use displayName for the header
-    th.style.border = "1px solid #ddd";
-    th.style.padding = "8px";
-    th.style.textAlign = "left";
+    if (index > 0) th.className = "num";
     headerRow.appendChild(th);
   });
   thead.appendChild(headerRow);
@@ -1160,21 +1299,36 @@ function SHOW_CONFIRMATION_GRID_POPUP(
   tbody.id = "confirmationGridTBody";
 
   // Populate table rows dynamically from gridData
-  gridData.forEach((item) => {
+  gridData.forEach((item, rowIndex) => {
     const row = document.createElement("tr");
+    row.style.animationDelay = `${Math.min(rowIndex, 10) * 40}ms`;
 
     // Add each data field into a new table cell (td)
-    columnNames.forEach((column) => {
+    columnNames.forEach((column, index) => {
       const td = document.createElement("td");
       td.textContent = item[column.actualName] ? item[column.actualName] : ""; // Use actualName to access the data
-      td.style.border = "1px solid #ddd";
-      td.style.padding = "8px";
+      if (index > 0) td.className = "num";
       row.appendChild(td);
     });
 
     tbody.appendChild(row);
   });
   table.appendChild(tbody);
+
+  // Total row in <tfoot> (not part of the PDF rows)
+  if (amountText) {
+    const tfoot = document.createElement("tfoot");
+    const footRow = document.createElement("tr");
+    const labelCell = document.createElement("td");
+    labelCell.textContent = "Total";
+    labelCell.colSpan = Math.max(columnNames.length - 1, 1);
+    const amountCell = document.createElement("td");
+    amountCell.className = "num";
+    amountCell.textContent = amountText;
+    footRow.append(labelCell, amountCell);
+    tfoot.appendChild(footRow);
+    table.appendChild(tfoot);
+  }
 
   // Append the table to the grid container
   gridContainer.appendChild(table);
@@ -1447,45 +1601,125 @@ async function CALL_API_WRITE_CLOUDFLARE(
   return response;
 }
 
-function openLeftNavBar(leftSideNavId, menuLabel) {
-  let nav = document.getElementById(leftSideNavId);
-  let menuBtn = document.querySelector(".leftSideNav-menuBtn");
+// Side menu: on desktop it docks and pushes the page right (and stays open
+// while you move between screens); on tablets / phones it slides in over a
+// backdrop and pushes the page aside.
+const NAV_OPEN_KEY = "nkdNavOpen";
 
-  if (nav) {
-    nav.style.display = "block";
+function isNavDocked() {
+  return window.matchMedia("(min-width: 1025px)").matches;
+}
 
-    // Screen width ke hisaab se sidebar ka width set karein
-    if (window.innerWidth <= 768) {
-      // Mobile devices ke liye (width 768px ya usse kam ho)
-      nav.style.width = "30%";
-    } else {
-      // Laptop ya bade screens ke liye
-      nav.style.width = "13%";
-    }
+// The menu that belongs to whichever screen is showing
+function getCurrentLeftNavId() {
+  return document.body.dataset.screen === "userHomeContainer"
+    ? "leftSideNavUser"
+    : "leftSideNavAdmin";
+}
 
-    menuBtn.innerHTML = `× ${menuLabel}`; // Text ko update karo
+function isMenuScreen() {
+  const screen = document.body.dataset.screen;
+  return screen === "adminHomeContainer" || screen === "userHomeContainer";
+}
 
-    menuBtn.setAttribute(
-      "onclick",
-      `closeLeftNavBar('${leftSideNavId}', '${menuLabel}')`,
-    );
+// The header shows the name of the open screen (kept on the nav)
+function syncHeaderMenuLabel() {
+  const nav = document.getElementById(getCurrentLeftNavId());
+  const label = document.getElementById("headerMenuLabel");
+  if (nav && label) label.textContent = nav.dataset.current || "Menu";
+}
+
+function setNavCurrent(nav, menuLabel) {
+  nav.dataset.current = menuLabel.trim();
+  syncHeaderMenuLabel();
+}
+
+function setMenuButtonState(isOpen) {
+  const button = document.getElementById("headerMenuBtn");
+  if (!button) return;
+  button.classList.toggle("is-open", isOpen);
+  button.setAttribute("aria-expanded", String(isOpen));
+  button.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+}
+
+function rememberNavOpen(isOpen) {
+  try {
+    localStorage.setItem(NAV_OPEN_KEY, isOpen ? "1" : "0");
+  } catch (e) {
+    // storage can be unavailable (private mode); the menu still works
   }
+}
+
+function wasNavOpen() {
+  try {
+    return localStorage.getItem(NAV_OPEN_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function openLeftNavBar(leftSideNavId) {
+  const nav = document.getElementById(leftSideNavId);
+  if (!nav) return;
+  hideAllNavs();
+  nav.classList.add("is-open");
+  nav.setAttribute("aria-hidden", "false");
+  document.body.classList.add("has-drawer");
+  setMenuButtonState(true);
 }
 
 function closeLeftNavBar(leftSideNavId, menuLabel) {
-  let nav = document.getElementById(leftSideNavId);
-  let menuBtn = document.querySelector(".leftSideNav-menuBtn");
-
-  if (nav) {
-    nav.style.width = "0"; // Sidebar ko close karo
-    nav.style.display = "none";
-    menuBtn.innerHTML = `☰ ${menuLabel}`; // Wapas original text me badlo
-    menuBtn.setAttribute(
-      "onclick",
-      `openLeftNavBar('${leftSideNavId}', '${menuLabel}')`,
-    );
+  const nav = document.getElementById(leftSideNavId);
+  if (!nav) return;
+  if (menuLabel) setNavCurrent(nav, menuLabel);
+  nav.classList.remove("is-open");
+  nav.setAttribute("aria-hidden", "true");
+  if (!document.querySelector(".leftSideNav.is-open")) {
+    document.body.classList.remove("has-drawer");
+    setMenuButtonState(false);
   }
 }
+
+function hideAllNavs() {
+  document.querySelectorAll(".leftSideNav.is-open").forEach((nav) => {
+    nav.classList.remove("is-open");
+    nav.setAttribute("aria-hidden", "true");
+  });
+  document.body.classList.remove("has-drawer");
+  setMenuButtonState(false);
+}
+
+// Hamburger
+function toggleAppMenu() {
+  const nav = document.getElementById(getCurrentLeftNavId());
+  if (!nav) return;
+  const willOpen = !nav.classList.contains("is-open");
+  if (willOpen) {
+    openLeftNavBar(nav.id);
+  } else {
+    closeLeftNavBar(nav.id);
+  }
+  rememberNavOpen(willOpen);
+}
+
+// Close button, backdrop and Esc
+function closeAppMenu() {
+  hideAllNavs();
+  rememberNavOpen(false);
+}
+
+// After a screen switch: re-open the docked menu if it was left open
+function restoreDockedNav() {
+  if (isMenuScreen() && isNavDocked() && wasNavOpen()) {
+    openLeftNavBar(getCurrentLeftNavId());
+  }
+}
+
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape" && document.body.classList.contains("has-drawer")) {
+    closeAppMenu();
+  }
+});
 
 function showLeftNavBarItemContainer(
   formId,
@@ -1501,7 +1735,17 @@ function showLeftNavBarItemContainer(
     });
 
   document.getElementById(formId).style.display = "block";
-  closeLeftNavBar(leftSideNavId, menuLabel);
+  document
+    .querySelectorAll(`#${leftSideNavId} [data-form]`)
+    .forEach((link) => {
+      link.classList.toggle("is-active", link.dataset.form === formId);
+    });
+  if (isNavDocked()) {
+    const nav = document.getElementById(leftSideNavId);
+    if (nav && menuLabel) setNavCurrent(nav, menuLabel);
+  } else {
+    closeLeftNavBar(leftSideNavId, menuLabel);
+  }
 
   if (typeof callBack === "function") {
     callBack(formId);

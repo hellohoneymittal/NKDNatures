@@ -22,7 +22,7 @@ async function issueLibBook() {
     issueDate: issueDate,
     status: "Issued",
   };
-  let response = await CALL_API("LIB_ISSUE_BOOK", inputData);
+  let response = await CALL_API_CF("LIB_ISSUE_BOOK", inputData);
   if (response) {
     resetLibBookForm();
     SHOW_SUCCESS_POPUP("Book Issued! Thank you");
@@ -45,7 +45,7 @@ async function initializedLibCustomerList() {
 
   const request = {};
 
-  const response = await CALL_API(API_TYPE_CONSTANT.LIB_USER_LIST, request);
+  const response = await CALL_API_CF("LIB_USER_LIST", request);
   const libCustNameList = response?.data?.map((item) => item[0]);
   initializedLiveSearchControl(
     "libCustName",
@@ -67,13 +67,11 @@ async function initializedLibBookList() {
   const request = {};
   const onlineRes = await IS_ONLINE();
   if (onlineRes) {
-    const libResponse = await CALL_API(
-      API_TYPE_CONSTANT.LIB_BOOK_LIST,
-      request,
-    );
+    const libResponse = await CALL_API_CF("LIB_BOOK_LIST", request);
 
-    const bookList = libResponse?.data?.bookMasterResponse;
-    const activityList = libResponse?.data?.libraryActivityMasterResponse;
+    const bookList = libResponse?.data?.bookMasterResponse || [];
+    const activityList =
+      libResponse?.data?.libraryActivityMasterResponse || [];
 
     const issuedCountMap = {};
 
@@ -114,6 +112,16 @@ function resetLibBookForm() {
   document.getElementById("libCustName").value = "";
   document.getElementById("libBookName").value = "";
   document.getElementById("libBookIssueDate").value = "";
+  document.getElementById("libCustNameClrBtn").style.display = "none";
+  document.getElementById("libBookNameCrlBtn").style.display = "none";
+  selectedLibCustomerName = "";
+  selectedBook = "";
+}
+
+function resetLibMembershipForm() {
+  document.getElementById("newUserTxtBoxMShip").value = "";
+  document.getElementById("mobileNumberTxtBoxMShip").value = "";
+  document.getElementById("emailTxtBoxMShip").value = "";
 }
 
 async function newLibMembershipInsert() {
@@ -153,10 +161,8 @@ async function newLibMembershipInsert() {
   };
   const onlineRes = await IS_ONLINE();
   if (onlineRes) {
-    await CALL_API(API_TYPE_CONSTANT.ADD_LIB_USER, request);
-    document.getElementById("newUserTxtBoxMShip").value = "";
-    document.getElementById("mobileNumberTxtBoxMShip").value = "";
-    document.getElementById("emailTxtBoxMShip").value = "";
+    await CALL_API_CF("ADD_LIB_USER", request);
+    resetLibMembershipForm();
     SHOW_SUCCESS_POPUP("User Inserted Successfully!");
   }
 }

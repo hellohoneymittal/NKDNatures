@@ -9,16 +9,44 @@ document.addEventListener("DOMContentLoaded", function () {
       selectedItem = selectedText;
     }
   );
+
+  // Customer: pick from the list (or type a new name)
+  setupLiveSearch(
+    "adminCustNameNKD",
+    "adminCustNameNKDClrBtn",
+    "adminCustNameNKDULList",
+    function () {
+      updateNKDCartMeta();
+    }
+  );
+  document
+    .getElementById("adminCustNameNKD")
+    ?.addEventListener("input", updateNKDCartMeta);
 });
 
 async function initializedItemListNKD() {
   let itemData = preprocessItemData(rowStockReponse);
-  debugger;
+  // debugger;
   itemArray = itemData.map((row) => `${row.item} - ${row.price}`);
 
   if (itemArray) {
     initializedItemListLiveSearchControlNKD(itemArray);
   }
+
+  // same customer list as Admin Sale (filled at login)
+  const customerNames = [
+    "General Customer",
+    ...(Array.isArray(userDataArr) ? userDataArr : [])
+      .map((user) => user?.name)
+      .filter(Boolean),
+  ];
+  initializedLiveSearchControl(
+    "adminCustNameNKD",
+    "adminCustNameNKDClrBtn",
+    "adminCustNameNKDULList",
+    [...new Set(customerNames)]
+  );
+  updateNKDCartMeta();
 }
 
 function initializedItemListLiveSearchControlNKD(itemArray) {
@@ -41,14 +69,18 @@ function addItemInBillNKD() {
   const discount = Number(disInput.value) || 0;
 
   if (!itemText || !qty) {
-    alert("Please enter item and quantity");
+    SHOW_ERROR_POPUP("Please enter item and quantity");
     return;
   }
 
   // Parse "Product - 99"
   const [itemName, priceText] = itemText.split(" - ");
   const selectedObj = getSelectedItemObject(itemName);
-  debugger;
+  // debugger;
+  if (!selectedObj || !priceText) {
+    SHOW_ERROR_POPUP("Please select an item from the list.");
+    return;
+  }
   const price = Number(priceText.trim());
   const gstPercentage = Number(selectedObj["GST %"] || 0);
   const hsnNo = selectedObj["HSN"] || "";
@@ -70,7 +102,7 @@ function addItemInBillNKD() {
   row.innerHTML = `
       <td>
         <img src="https://i.postimg.cc/cJZRzYzT/delete-Icon.png"
-        alt="Delete" onclick="deleteSaleRowNKD('${uniqueKey}')"
+        alt="Remove" title="Remove item" onclick="deleteSaleRowNKD('${uniqueKey}')"
         style="cursor:pointer; width:18px; height:18px;">
       </td>
       <td>${itemName}</td>
@@ -105,6 +137,8 @@ function addItemInBillNKD() {
   itemInput.value = "";
   qtyInput.value = "";
   disInput.value = "";
+  document.getElementById("adminItemInputClrBtnNKD").style.display = "none";
+  itemInput.focus();
 }
 
 function deleteSaleRowNKD(key) {
@@ -122,19 +156,42 @@ function updateTotalNKD() {
     return sum + (item.totalWithGST ? Number(item.totalWithGST) : 0);
   }, 0);
 
-  document.getElementById(
-    "totalCostNKD"
-  ).textContent = `Total (Incl. GST): ₹${total.toFixed(2)}`;
+  const totalEl = document.getElementById("totalCostNKD");
+  totalEl.textContent = `₹${total.toFixed(2)}`;
+  // replay the "bump" animation on every change
+  totalEl.classList.remove("is-bumped");
+  void totalEl.offsetWidth;
+  totalEl.classList.add("is-bumped");
+  updateNKDCartMeta();
+}
+
+// Item count, empty state and the summary in the checkout card
+function updateNKDCartMeta() {
+  const count = selectedItemsNKD.length;
+  const gst = selectedItemsNKD.reduce(
+    (sum, item) => sum + (Number(item.gstAmount) || 0),
+    0
+  );
+  const customer = document.getElementById("adminCustNameNKD")?.value.trim();
+  const items = `${count} ${count === 1 ? "item" : "items"}`;
+  const setText = (id, text, isWarning) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.classList.toggle("is-warning", Boolean(isWarning));
+  };
+  setText("nkdItemCount", items);
+  setText("nkdSumItems", items);
+  setText("nkdSumGst", `₹${gst.toFixed(2)}`);
+  setText("nkdSumCustomer", customer || "Not selected", !customer);
+  document.getElementById("nkdCart")?.classList.toggle("is-empty", !count);
 }
 
 async function onSaleConfirmClickNKD() {
-  const request = {
-    inputData: JSON.stringify(selectedItemsNKD),
-    apiType: API_TYPE_CONSTANT.CREATE_SALE_NKD,
-  };
-
-  const response = await API_HANDLER_AXIOS(request);
-  if (response) {
+  // Same API layer as the other screens (sends the array, not a string,
+  // like SAVE_PRODUCTION_DATA)
+  const response = await CALL_API_CF("CREATE_SALE_NKD", selectedItemsNKD);
+  if (response?.status) {
     SHOW_SUCCESS_POPUP("Sale Created Successfully");
     clearNKDSaleForm();
     console.log("Sale Creation Response:", response);
@@ -184,9 +241,8 @@ function submitOrderNKD() {
   }));
 
   // Update UI
-  document.getElementById(
-    "totalCostNKD"
-  ).textContent = `Total (Incl. GST): ₹${billTotal.toFixed(2)}`;
+  document.getElementById("totalCostNKD").textContent =
+    `₹${billTotal.toFixed(2)}`;
 
   // Columns
   const columnNames = [
@@ -225,5 +281,8 @@ function clearNKDSaleForm() {
   tableBody.innerHTML = "";
 
   // Total reset
-  document.getElementById("totalCostNKD").innerText = "Total: ₹0";
+  document.getElementById("totalCostNKD").innerText = "₹0.00";
+  document.getElementById("adminCustNameNKDClrBtn").style.display = "none";
+  document.getElementById("adminItemInputClrBtnNKD").style.display = "none";
+  updateNKDCartMeta();
 }

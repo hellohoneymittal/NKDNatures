@@ -9,7 +9,9 @@ let stockItemDataList = [];
 let selectedUserObj = {};
 let inputDataForSale = [];
 let unitType = "wgt";
-setupKeyPressHandler("adminSale", "addItemInBillBtn", ["s"], { ctrl: true });
+setupKeyPressHandler("adminSale", "addItemInBillBtn", ["s", "S"], {
+  ctrl: true,
+});
 setupKeyPressHandler("adminProduction", "productionInputBtn", ["p"], {
   ctrl: true,
 });
@@ -34,9 +36,11 @@ document.addEventListener("DOMContentLoaded", function () {
           discountDiv.innerText = "";
           discountDiv.style.display = "None";
         }
+        focusSaleField("adminItemInput");
       } else {
         selectedUserObj = {};
       }
+      updateSaleSummary();
     },
   );
 
@@ -47,9 +51,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function (selectedText) {
       if (selectedText) {
         selectedItem = selectedText;
+        focusSaleField("adminQuantityInput");
       } else {
         selectedItem = "";
       }
+      updateSaleItemPreview();
     },
   );
 });
@@ -166,6 +172,7 @@ function initializedItemListLiveSearchControl(itemArray) {
     "adminItemInputULList",
     itemArray,
   );
+  decorateItemSearchList();
 }
 
 function validateItemInputLiveSearch() {
@@ -342,6 +349,8 @@ function addItemInBill() {
   adminDisInputCtrl.value = "";
 
   updateFinalTotal();
+  updateSaleItemPreview();
+  focusSaleField("adminItemInput");
 }
 
 function addNewUserButtonClick() {
@@ -425,7 +434,169 @@ function updateFinalTotal() {
   let totalCostDisplay = document.getElementById("totalCost");
   const finalTotal = selectedItems.reduce((sum, item) => sum + item.total, 0);
   totalCostDisplay.textContent = `₹${finalTotal.toFixed(2)}`;
+  // replay the "bump" animation on every change
+  totalCostDisplay.classList.remove("is-bumped");
+  void totalCostDisplay.offsetWidth;
+  totalCostDisplay.classList.add("is-bumped");
+  updateSaleCartMeta();
 }
+
+// Item count badge and empty-cart state on the sale screen
+function updateSaleCartMeta() {
+  const count = selectedItems.length;
+  const countBadge = document.getElementById("adSaleItemCount");
+  if (countBadge) {
+    countBadge.textContent = `${count} ${count === 1 ? "item" : "items"}`;
+  }
+  document.getElementById("saleCart")?.classList.toggle("is-empty", !count);
+  updateSaleSummary();
+}
+
+//#region Sale screen helpers: item preview, bill summary, keyboard flow
+
+// Only jump focus on desktop; on phones it would pop the keyboard up
+function focusSaleField(id) {
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    document.getElementById(id)?.focus();
+  }
+}
+
+// Item list entries look like "Name - available - price"
+function parseSaleItemText(text) {
+  const match = /^(.*)( - )([^-]+)( - )([^-]+)$/.exec(text || "");
+  if (!match) return null;
+  const name = match[1].trim();
+  const itemData = stockItemDataList.find(
+    (data) => data.item.trim().toLowerCase() === name.toLowerCase(),
+  );
+  return {
+    parts: match.slice(1),
+    name: name,
+    available: Number(match[3]),
+    price: Number(match[5]),
+    isWeight:
+      itemData?.type?.toString().toLowerCase() ===
+      unitType.toString().toLowerCase(),
+  };
+}
+
+// Split each dropdown row into name + stock/price chips. The " - "
+// separators stay in hidden spans so textContent is unchanged, which the
+// live search matching and addItemInBill() rely on.
+function decorateItemSearchList() {
+  document.querySelectorAll("#adminItemInputULList li").forEach((li) => {
+    const item = parseSaleItemText(li.textContent);
+    if (!item) return;
+    const unit = item.isWeight ? "kg" : "pc";
+    const classes = ["ls-name", "ls-sep", "ls-chip ls-chip--stock", "ls-sep", "ls-chip ls-chip--price"];
+    li.textContent = "";
+    item.parts.forEach((part, index) => {
+      const span = document.createElement("span");
+      span.className = classes[index];
+      span.textContent = part;
+      span.dataset.unit = unit;
+      li.appendChild(span);
+    });
+  });
+}
+
+function updateSaleItemPreview() {
+  const preview = document.getElementById("saleItemPreview");
+  if (!preview) return;
+  const itemInput = document.getElementById("adminItemInput");
+  const unitLabel = document.getElementById("adminQtyUnit");
+  const item =
+    selectedItem && selectedItem === itemInput.value
+      ? parseSaleItemText(selectedItem)
+      : null;
+
+  if (!item) {
+    preview.classList.remove("is-visible", "is-over");
+    unitLabel.textContent = "";
+    return;
+  }
+
+  const qtyUnit = item.isWeight ? "g" : "pcs";
+  const stockUnit = item.isWeight ? "kg" : "pcs";
+  const qty = Number(document.getElementById("adminQuantityInput").value) || 0;
+  const discount = Number(document.getElementById("adminDisInput").value) || 0;
+  const unitPrice = item.isWeight ? item.price / 1000 : item.price;
+  const lineTotal = unitPrice * qty * (1 - discount / 100);
+  const stockNeeded = item.isWeight ? qty / 1000 : qty;
+  const isOver = stockNeeded > item.available;
+
+  unitLabel.textContent = qtyUnit;
+  document.getElementById("saleItemPreviewName").textContent = item.name;
+  document.getElementById("saleItemPreviewMeta").textContent =
+    `In stock: ${item.available} ${stockUnit} · ₹${item.price}/${item.isWeight ? "kg" : "pc"}`;
+
+  let totalText = "Enter quantity";
+  if (qty && isOver) {
+    totalText = `Only ${item.available} ${stockUnit} left`;
+  } else if (qty) {
+    totalText = `${qty} ${qtyUnit} = ₹${lineTotal.toFixed(2)}`;
+    if (discount) totalText += ` (−${discount}%)`;
+  }
+  document.getElementById("saleItemPreviewTotal").textContent = totalText;
+  preview.classList.toggle("is-over", Boolean(qty) && isOver);
+  preview.classList.add("is-visible");
+}
+
+function updateSaleSummary() {
+  const setText = (id, text, isWarning) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.classList.toggle("is-warning", Boolean(isWarning));
+  };
+  const customer = document.getElementById("adminCustName")?.value.trim();
+  const count = selectedItems.length;
+  const payment = getSelectedPaymentStatus();
+  const mode = document.querySelector('input[name="saleType"]:checked')?.value;
+  const gst = document.querySelector('input[name="gstStatus"]:checked')?.value;
+
+  setText("sumCustomer", customer || "Not selected", !customer);
+  setText("sumItems", `${count} ${count === 1 ? "item" : "items"}`);
+  setText(
+    "sumPayment",
+    payment ? (payment === "paid" ? "Paid" : "Pending") : "Not chosen",
+    !payment,
+  );
+  setText(
+    "sumMode",
+    `${mode || "-"} · ${gst === "gstYes" ? "GST bill" : "No GST"}`,
+  );
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const saleScreen = document.getElementById("adminSale");
+  if (!saleScreen) return;
+
+  const today = document.getElementById("saleToday");
+  if (today) {
+    today.textContent = new Date().toLocaleDateString("en-IN", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  // Ctrl + S adds the item (setupKeyPressHandler at the top of this file)
+  ["adminQuantityInput", "adminDisInput"].forEach((id) => {
+    document
+      .getElementById(id)
+      .addEventListener("input", updateSaleItemPreview);
+  });
+
+  document
+    .getElementById("adminCustName")
+    .addEventListener("input", updateSaleSummary);
+  saleScreen.addEventListener("change", updateSaleSummary);
+  updateSaleSummary();
+});
+
+//#endregion
 
 function submitOrder() {
   const customerSelect = document.getElementById("adminCustName");
@@ -435,7 +606,7 @@ function submitOrder() {
     return;
   }
 
-  debugger;
+  // debugger;
   const selectedPaymentStatus = getSelectedPaymentStatus();
   if (!selectedPaymentStatus) {
     SHOW_ERROR_POPUP("Payment status not selected");
@@ -619,7 +790,7 @@ function combineItemsByNameForWhatsapp() {
 async function onSaleConfirmClick() {
   const dataForSale = prepareInputDataForSale();
   console.log("Data for Sale:", dataForSale);
-  debugger;
+  // debugger;
   if (dataForSale?.length > 0) {
     const response = await CALL_API_CF("CREATE_SALE", dataForSale);
     console.log("Sale API Response:", response);
@@ -660,6 +831,7 @@ function resetSaleFields() {
 
   tableBody.innerHTML = "";
   totalCostDisplay.textContent = `₹0.00`;
+  updateSaleCartMeta();
   document.querySelectorAll('input[name="paymentStatus"]').forEach((radio) => {
     radio.checked = false;
   });

@@ -130,7 +130,7 @@ async function submitProduction() {
       "SAVE_PRODUCTION_DATA",
       ProductionListArr,
     );
-    debugger;
+    // debugger;
     if (response?.status) {
       const tableBody = document.getElementById("piTableTBody");
       tableBody.innerHTML = "";

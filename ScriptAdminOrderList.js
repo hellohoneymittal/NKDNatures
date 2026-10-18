@@ -3,13 +3,24 @@ let rowDataAdmin;
 let userOrderCount = 0;
 
 async function initializedAdminOrderList() {
-  const response = await CALL_API("GET_USER_ORDER_LIST", {});
+  const response = await CALL_API_CF("GET_USER_ORDER_LIST", {});
+  // CALL_API_CF already shows the error popup; just don't crash
+  if (!response?.data) {
+    document.getElementById("adminOrderListView").innerHTML =
+      '<p class="list-empty">No orders yet.</p>';
+    return;
+  }
   const filteredData = {};
   for (const [key, items] of Object.entries(response.data)) {
     const validItems = items.filter((item) => item.OrderStatus !== "Deleted");
     if (validItems.length > 0) {
       filteredData[key] = validItems;
     }
+  }
+  if (!Object.keys(filteredData).length) {
+    document.getElementById("adminOrderListView").innerHTML =
+      '<p class="list-empty">No orders yet.</p>';
+    return;
   }
   populateListViewForObjectOfArray(
     "adminOrderListView",
@@ -278,8 +289,9 @@ async function onUserOrderProceed(billKey, billItems, orderType = "orderSale") {
       OrderStatus: "Ready",
     }));
 
-    const response = await CALL_API("READY_USER_ORDER", billItems);
+    const response = await CALL_API_CF("READY_USER_ORDER", billItems);
     console.log("READY_USER_ORDER response:", response);
+    if (!response?.status) return;
     const billNo = billItems[0].BillNo;
     const headers = document.querySelectorAll(".uo-bill-header");
     headers.forEach((header) => {
