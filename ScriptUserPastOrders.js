@@ -1,5 +1,10 @@
 async function initializedUserPastOrdersList() {
-  const response = await CALL_API("GET_USER_ORDER_LIST", {});
+  const response = await CALL_API_CF("GET_USER_ORDER_LIST", {});
+  if (!response?.data) {
+    document.getElementById("adminUserPastOrderListView").innerHTML =
+      '<p class="list-empty">No orders yet.</p>';
+    return;
+  }
   const filteredData = {};
   const userName = getUserName();
   for (const [key, items] of Object.entries(response.data)) {
@@ -11,6 +16,11 @@ async function initializedUserPastOrdersList() {
     if (validItems.length > 0) {
       filteredData[key] = validItems;
     }
+  }
+  if (!Object.keys(filteredData).length) {
+    document.getElementById("adminUserPastOrderListView").innerHTML =
+      '<p class="list-empty">No orders yet.</p>';
+    return;
   }
   populateListViewForObjectOfArrayUserPastOrder(
     "adminUserPastOrderListView",

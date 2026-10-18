@@ -2,8 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="theme-color" content="#1f2b47" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="NKD Natures" />
     <title>NKD Community</title>
+    <link rel="icon" type="image/png" href="Assests/Natures-Logo.png" />
+    <link rel="apple-touch-icon" href="Assests/Natures-Logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <link rel="stylesheet" href="StylesCommon.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
@@ -14,10 +33,199 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   </head>
-  <body>
+  <body class="is-login" data-screen="mainContainer">
     <div class="primaryContainerDiv">
+      <header class="app-header">
+        <div class="app-header__inner">
+          <div class="app-header__start">
+            <button
+              type="button"
+              class="nav-toggle"
+              id="headerMenuBtn"
+              onclick="toggleAppMenu()"
+              aria-label="Open menu"
+              aria-expanded="false"
+            >
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path class="nav-icon__l1" d="M4 7h16" /><path class="nav-icon__l2" d="M4 12h16" /><path class="nav-icon__l3" d="M4 17h16" /></svg>
+            </button>
+            <div class="brand">
+              <span class="brand__logo" aria-hidden="true">
+                <img src="Assests/Natures-Logo.png" alt="" />
+              </span>
+              <span class="brand__text">
+                <span class="brand__name">NKD <em>Natures</em></span>
+                <span class="brand__tag">Pure pleasures &amp; baked treasures</span>
+                <span class="brand__screen" id="headerMenuLabel">Menu</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="app-header__actions">
+            <button
+              type="button"
+              class="header-btn header-btn--logout"
+              onclick="logoutBtnClick()"
+              aria-label="Logout"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Side menus live outside the screens so the screens can slide
+           over when a menu opens; one backdrop for tablets / phones -->
+      <div class="drawer-backdrop" onclick="closeAppMenu()"></div>
+      <nav
+        id="leftSideNavAdmin"
+        class="leftSideNav"
+        data-current="Admin Sale"
+        aria-label="Admin menu"
+      >
+        <div class="drawer__head">
+          <span class="drawer__logo"><img src="Assests/Natures-Logo.png" alt="" /></span>
+          <span class="drawer__title">
+            <b>NKD <em>Natures</em></b>
+            <small>Admin menu</small>
+          </span>
+          <button
+            type="button"
+            class="drawer__close"
+            onclick="closeAppMenu()"
+            aria-label="Close menu"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path class="nav-icon__l1" d="M4 7h16" /><path class="nav-icon__l2" d="M4 12h16" /><path class="nav-icon__l3" d="M4 17h16" /></svg>
+          </button>
+        </div>
+        <div class="drawer__body">
+          <p class="drawer__section">Sales</p>
+          <a href="#adminSale" class="leftNavBar-dynamicNavLink is-active" data-form="adminSale">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18M16 10a4 4 0 0 1-8 0" /></svg>
+            <span>Admin Sale</span>
+          </a>
+          <a href="#adminNKDCommunitySale" class="leftNavBar-dynamicNavLink" data-form="adminNKDCommunitySale">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" /></svg>
+            <span>NKD Community Sale</span>
+          </a>
+          <a href="#natureGSTBill" class="leftNavBar-dynamicNavLink" data-form="natureGSTBill">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2Z" /><path d="M9 8h6M9 12h6" /></svg>
+            <span>Nature GST Bills</span>
+          </a>
+          <a href="#adminOrderList" class="leftNavBar-dynamicNavLink" data-form="adminOrderList">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 12h6M9 16h6" /></svg>
+            <span>Order List</span>
+          </a>
+          <p class="drawer__section">Stock &amp; accounts</p>
+          <a href="#adminProduction" class="leftNavBar-dynamicNavLink" data-form="adminProduction">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 9 5-9 5-9-5Z" /><path d="m3 12 9 5 9-5M3 17l9 5 9-5" /></svg>
+            <span>Production</span>
+          </a>
+          <a href="#adminKhataBook" class="leftNavBar-dynamicNavLink" data-form="adminKhataBook">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15Z" /><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" /></svg>
+            <span>Khata Book</span>
+          </a>
+          <a href="#adminDailyInput" class="leftNavBar-dynamicNavLink" data-form="adminDailyInput">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4" /></svg>
+            <span>Admin Daily Input</span>
+          </a>
+          <p class="drawer__section">Library</p>
+          <a href="#libIssueBook" class="leftNavBar-dynamicNavLink" data-form="libIssueBook">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2ZM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7Z" /></svg>
+            <span>Issue Book</span>
+          </a>
+          <a href="#libMembership" class="leftNavBar-dynamicNavLink" data-form="libMembership">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" /><circle cx="8" cy="12" r="2" /><path d="M14 10h4M14 14h4M5 16a3 3 0 0 1 6 0" /></svg>
+            <span>Membership</span>
+          </a>
+        </div>
+        <div class="drawer__foot">
+          <div class="drawer__user">
+            <span class="drawer__avatar" aria-hidden="true">A</span>
+            <span class="drawer__who">
+              <b>Admin</b>
+              <small><i class="drawer__dot"></i>Signed in</small>
+            </span>
+            <button
+              type="button"
+              class="drawer__logout"
+              onclick="logoutBtnClick()"
+              aria-label="Logout"
+              title="Logout"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+      <nav
+        id="leftSideNavUser"
+        class="leftSideNav"
+        data-current="Grocery Order"
+        aria-label="Shop menu"
+      >
+        <div class="drawer__head">
+          <span class="drawer__logo"><img src="Assests/Natures-Logo.png" alt="" /></span>
+          <span class="drawer__title">
+            <b>NKD <em>Natures</em></b>
+            <small>Shop menu</small>
+          </span>
+          <button
+            type="button"
+            class="drawer__close"
+            onclick="closeAppMenu()"
+            aria-label="Close menu"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path class="nav-icon__l1" d="M4 7h16" /><path class="nav-icon__l2" d="M4 12h16" /><path class="nav-icon__l3" d="M4 17h16" /></svg>
+          </button>
+        </div>
+        <div class="drawer__body">
+          <p class="drawer__section">Shop</p>
+          <a href="#userOrder" class="leftNavBarUser-dynamicNavLink is-active" data-form="userOrder">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" /><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" /></svg>
+            <span>Grocery Order</span>
+          </a>
+          <a href="#userPastOrders" class="leftNavBarUser-dynamicNavLink" data-form="userPastOrders">
+            <svg class="drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></svg>
+            <span>Past Orders</span>
+          </a>
+        </div>
+        <div class="drawer__foot">
+          <div class="drawer__user">
+            <span class="drawer__avatar" aria-hidden="true">U</span>
+            <span class="drawer__who">
+              <b>Customer</b>
+              <small><i class="drawer__dot"></i>Signed in</small>
+            </span>
+            <button
+              type="button"
+              class="drawer__logout"
+              onclick="logoutBtnClick()"
+              aria-label="Logout"
+              title="Logout"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+
       <div id="loadingSpinner" style="display: none">
-        <div class="spinner"></div>
+        <!-- thin progress line along the top of the page -->
+        <span class="loader-topbar" aria-hidden="true"></span>
+        <div class="loader" role="status" aria-live="polite">
+          <div class="loader__ring" aria-hidden="true">
+            <span class="loader__logo">
+              <img src="Assests/Natures-Logo.png" alt="" />
+            </span>
+          </div>
+          <p class="loader__text">
+            Please wait<span class="loader__dots" aria-hidden="true"
+              ><i></i><i></i><i></i
+            ></span>
+          </p>
+          <span class="loader__bar" aria-hidden="true"></span>
+        </div>
       </div>
 
       <div class="infoPopup" id="successPopup">
@@ -65,39 +273,40 @@
       </div>
 
       <div class="infoPopup" id="confirmationGridPopup">
-        <div class="infoPopup-content">
-          <div class="infoPopup-icon confirmation"></div>
+        <div class="infoPopup-content cg" role="dialog" aria-labelledby="confirmationGridTitle">
+          <div class="cg-head">
+            <span class="infoPopup-icon confirmation cg-icon" aria-hidden="true"></span>
+            <div class="cg-head__text">
+              <h2 class="cg-title" id="confirmationGridTitle">Review bill</h2>
+              <p class="cg-sub" id="confirmationGridSub"></p>
+            </div>
+            <div class="cg-total" id="confirmationGridTotal"></div>
+          </div>
 
-          <!-- Status Text Area -->
-          <div id="confirmationGridStatusText" class="heading"></div>
+          <!-- Status text kept for callers; shown through the head above -->
+          <div id="confirmationGridStatusText" class="sr-only"></div>
 
-          <!-- Table Grid Container -->
+          <!-- The bill PDF is built from this table's th / td text -->
           <div
             id="confirmationGridContainer"
-            class="collection-table-container scrollable-content-table"
-            style="margin-top: 10px"
+            class="collection-table-container scrollable-content-table cg-table"
           >
             <table id="confirmationGridTable">
-              <thead id="confirmationGridTHead" class="table-header">
-                <!-- Table headers will be dynamically generated here -->
-              </thead>
-              <tbody id="confirmationGridTBody">
-                <!-- Table rows will be dynamically generated here -->
-              </tbody>
+              <thead id="confirmationGridTHead" class="table-header"></thead>
+              <tbody id="confirmationGridTBody"></tbody>
             </table>
           </div>
 
-          <!-- Buttons for Confirmation -->
-          <div class="button-row">
+          <div class="button-row cg-actions">
             <button class="red" id="confirmationGridNoButton">NO</button>
             <button class="green" id="confirmationGridYesButton">YES</button>
           </div>
         </div>
       </div>
 
-      <div class="popup" id="billContainer">
+      <div class="popup popup--modal" id="billContainer">
         <div class="popup-content">
-          <h2>Sale input successfully</h2>
+          <h2>Sale saved successfully</h2>
           <div class="button-row">
             <button
               class="purple"
@@ -126,404 +335,407 @@
       </div>
 
       <div class="popup" style="display: flex" id="mainContainer">
-        <div class="popup-content">
-          <div class="popup-content">
-            <div class="video-container" id="videoContainer">
-              <iframe
-                loading="lazy"
-                src="https://www.youtube.com/embed/_NnJXuqfG74"
-                title="YouTube video player"
-                allow="
-                  accelerometer;
-                  autoplay;
-                  clipboard-write;
-                  encrypted-media;
-                  gyroscope;
-                  picture-in-picture;
-                "
-                allowfullscreen
-              >
-              </iframe>
+        <div class="popup-content auth">
+          <section class="auth__brand">
+            <svg class="auth__leaf" viewBox="0 0 200 200" fill="none" aria-hidden="true"><path d="M40 160C40 90 90 40 170 32c-4 82-50 132-122 132" stroke="currentColor" stroke-width="3" /><path d="M48 158C80 120 112 88 150 56" stroke="currentColor" stroke-width="3" stroke-linecap="round" /><path d="M80 124c14 2 28 0 40-6M104 98c12 2 24 0 34-6M70 140c-2-14 0-26 6-38M96 112c-2-12 0-24 6-34" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+            <div class="auth__logo">
+              <img src="Assests/Natures-Logo.png" alt="Nature's" />
             </div>
-          </div>
+            <p class="auth__eyebrow">NKD Community</p>
+            <h1 class="auth__title">NKD Natures <span>Store console</span></h1>
+            <p class="auth__sub">
+              Billing, stock and orders for the Natures store team.
+            </p>
+            <ul class="auth__features">
+            <li>
+              <span class="auth__feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2Z" /><path d="M9 8h6M9 12h6" /></svg></span>
+              <span><strong>Sales &amp; GST bills</strong><small>Create bills and share them on WhatsApp</small></span>
+            </li>
+            <li>
+              <span class="auth__feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5Z" /><path d="m3 8 9 5 9-5M12 13v8" /></svg></span>
+              <span><strong>Stock &amp; production</strong><small>Track batches and what is in stock</small></span>
+            </li>
+            <li>
+              <span class="auth__feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15Z" /><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" /></svg></span>
+              <span><strong>Orders &amp; khata</strong><small>Grocery orders and customer credit</small></span>
+            </li>
+            </ul>
+            <p class="auth__foot">Pure pleasures &amp; baked treasures</p>
+          </section>
 
-          <div class="radio-container">
-            <div
-              style="
-                display: flex;
-                justify-content: center;
-                gap: 2rem;
-                margin-bottom: 10px;
-              "
-            >
-              <div class="options">
-                <input
-                  type="radio"
-                  id="permissionRadioUser"
-                  name="permission"
-                  value="User"
-                  class="custom-radio required"
-                  checked
-                />
-                <label for="permissionRadioUser" class="custom-label"
-                  >User</label
-                >
-              </div>
-              <div class="options">
-                <input
-                  type="radio"
-                  id="permissionRadioAdmin"
-                  name="permission"
-                  value="Admin"
-                  class="custom-radio"
-                />
-                <label for="permissionRadioAdmin" class="custom-label"
-                  >Admin</label
-                >
-              </div>
-            </div>
+          <section class="auth__panel">
+            <span class="auth__greeting">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+              <span id="authGreeting">Hello</span>
+            </span>
+            <h2 class="auth__heading">Welcome back</h2>
+            <p class="auth__hint">
+              Sign in with the password shared by the store admin.
+            </p>
 
-            <div id="password-field">
+            <!-- Sliding tab toggle: the radios come first so the thumb and
+                 the labels can react to them with the ~ selector -->
+            <div class="role-switch" role="radiogroup" aria-label="Sign in as">
               <input
-                type="text"
-                id="passwordInputAdmin"
-                placeholder="Enter Password"
+                type="radio"
+                id="permissionRadioUser"
+                name="permission"
+                value="User"
+                class="role-switch__input custom-radio required"
+                checked
               />
+              <input
+                type="radio"
+                id="permissionRadioAdmin"
+                name="permission"
+                value="Admin"
+                class="role-switch__input custom-radio"
+              />
+              <span class="role-switch__thumb" aria-hidden="true"></span>
+              <label for="permissionRadioUser" class="role-switch__opt role-switch__opt--user">
+                <svg class="role-switch__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
+                <b>User</b>
+                <small>Grocery orders</small>
+              </label>
+              <label for="permissionRadioAdmin" class="role-switch__opt role-switch__opt--admin">
+                <svg class="role-switch__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="m9 12 2 2 4-4" /></svg>
+                <b>Admin</b>
+                <small>Sales, stock &amp; khata</small>
+              </label>
             </div>
-            <button class="green" onclick="viewHomePage()">
-              See Product List
+
+            <div id="password-field" class="field has-icon has-toggle float">
+              <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+              <input
+                type="password"
+                id="passwordInputAdmin"
+                placeholder=" "
+                autocomplete="current-password"
+              />
+              <label for="passwordInputAdmin" class="float-label">Password</label>
+              <button
+                type="button"
+                class="pw-toggle"
+                onclick="togglePasswordVisibility()"
+                aria-label="Show password"
+                aria-pressed="false"
+              >
+                <svg class="pw-toggle__show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+                <svg class="pw-toggle__hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19c-6.5 0-10-7-10-7a18.5 18.5 0 0 1 5.1-5.9M9.9 5.2A9.1 9.1 0 0 1 12 5c6.5 0 10 7 10 7a18.6 18.6 0 0 1-2.2 3.2M14.1 14.1a3 3 0 0 1-4.2-4.2" /><path d="m2 2 20 20" /></svg>
+              </button>
+            </div>
+
+            <p class="caps-hint" id="capsLockHint" role="status">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /></svg>
+              Caps Lock is on
+            </p>
+
+            <button class="green auth__submit" onclick="viewHomePage()">
+              <span>Sign in</span>
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
             <!-- <button class="green" onclick="showWhatsapp()">Testing</button> -->
-          </div>
+
+            <p class="auth__help">
+              Trouble signing in? Ask the NKD Natures admin to reset your
+              password.
+            </p>
+
+            <div class="auth__meta">
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg> Secure in-house access</span>
+              <span>NKD Community</span>
+            </div>
+          </section>
         </div>
       </div>
 
       <div class="popup" id="adminHomeContainer">
         <div class="popup-content">
-          <!-- Nav Menu Bar -->
-          <button
-            class="leftSideNav-menuBtn"
-            onclick="openLeftNavBar('leftSideNavAdmin', 'NKD Community')"
-          >
-            ☰ NKD Community
-          </button>
-
-          <div id="leftSideNavAdmin" class="leftSideNav">
-            <a
-              href="#adminSale"
-              class="leftNavBar-dynamicNavLink"
-              data-form="adminSale"
-              >Admin Sale</a
-            >
-
-            <a
-              href="#adminProduction"
-              class="leftNavBar-dynamicNavLink"
-              data-form="adminProduction"
-              >Production</a
-            >
-
-            <a
-              href="#adminOrderList"
-              class="leftNavBar-dynamicNavLink"
-              data-form="adminOrderList"
-              >Order List</a
-            >
-
-            <a
-              href="#adminKhataBook"
-              class="leftNavBar-dynamicNavLink"
-              data-form="adminKhataBook"
-              >Khata Book</a
-            >
-
-            <a
-              href="#adminDailyInput"
-              class="leftNavBar-dynamicNavLink"
-              data-form="adminDailyInput"
-              >Admin Daily Input</a
-            >
-
-            <!-- Library Section -->
-            <a
-              href="#librarySubmenu"
-              onclick="toggleLeftNavBarSubMenu('librarySubmenu')"
-            >
-              Library <span class="arrow">▼</span>
-            </a>
-
-            <div id="librarySubmenu" class="leftSideNav-SubMenu">
-              <a
-                href="#libIssueBook"
-                class="leftNavBar-dynamicNavLink"
-                data-form="libIssueBook"
-                >Issue Book</a
-              >
-              <a
-                href="#libMembership"
-                class="leftNavBar-dynamicNavLink"
-                data-form="libMembership"
-                >Membership</a
-              >
-            </div>
-
-            <a
-              href="#adminNKDCommunitySale"
-              class="leftNavBar-dynamicNavLink"
-              data-form="adminNKDCommunitySale"
-              >NKD Community Sale</a
-            >
-            <a
-              href="#natureGSTBill"
-              class="leftNavBar-dynamicNavLink"
-              data-form="natureGSTBill"
-              >Nature GST Bills</a
-            >
-          </div>
 
           <div class="leftSideNav-contentContainer">
             <div
               id="adminSale"
               style="display: block"
-              class="popup-content scrollable-content-list leftSideNav-itemContainer"
+              class="popup-content scrollable-content-list leftSideNav-itemContainer sale-screen"
             >
+              <div class="sale-head">
+                <div class="sale-head__title">
+                  <h2 id="loginName" class="admin-panel-title">New Sale</h2>
+                  <span class="date-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+                    <span id="saleToday"></span>
+                  </span>
+                </div>
+              </div>
+
               <div
                 id="customerDiscountInfo"
-                style="
-                  display: none;
-                  margin-bottom: 10px;
-                  padding: 10px;
-                  border: 2px dashed #4caf50;
-                  background-color: #e8f5e9;
-                  border-radius: 8px;
-                  font-weight: bold;
-                  color: #2e7d32;
-                  text-align: center;
-                "
+                class="notice"
+                style="display: none"
               >
                 🎉 Applicable Discount: 5% Scheduled Discount
               </div>
 
-              <div class="custom-control-row">
-                <div class="left-side-control">
-                  <label
-                    id="loginName"
-                    class="admin-panel-title"
-                    style="text-align: center"
-                    >Admin Panel</label
-                  >
-                </div>
-                <div class="right-side-control">
-                  <button class="red" onclick="logoutBtnClick()">Logout</button>
-                </div>
-              </div>
-              <div class="custom-control-row">
-                <div class="left-side-control">
-                  <div class="liveSearchContainer">
-                    <input
-                      type="text"
-                      id="adminCustName"
-                      class="liveSearch"
-                      placeholder="Customer Name..."
-                    />
-                    <button class="liveSearchClearBtn" id="adminCustNameClrBtn">
-                      &times;
-                    </button>
-                    <ul id="adminCustNameULList" class="liveSearchUL"></ul>
-                  </div>
-                </div>
-                <div class="right-side-control">
-                  <img
-                    style="height: 35px !important"
-                    class="user-icon-btn"
-                    src="Assests/Add-User.jpg"
-                    border="0"
-                    alt="Add User"
-                    onclick="addNewUserButtonClick()"
-                  />
-                </div>
-              </div>
+              <div class="pos">
+                <div class="pos-main">
+                  <section class="pos-section pos-section--customer">
+                    <header class="pos-section__head">
+                      <span class="sale-step">1</span>
+                      <h3>Customer</h3>
+                    </header>
+                    <div class="sale-card__row">
+                      <div class="liveSearchContainer has-icon float">
+                        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
+                        <input
+                          type="text"
+                          id="adminCustName"
+                          class="liveSearch"
+                          placeholder=" "
+                          autocomplete="off"
+                        />
+                        <label for="adminCustName" class="float-label"
+                          >Customer name</label
+                        >
+                        <button class="liveSearchClearBtn" id="adminCustNameClrBtn">
+                          &times;
+                        </button>
+                        <ul id="adminCustNameULList" class="liveSearchUL"></ul>
+                      </div>
+                      <button
+                        type="button"
+                        class="soft-btn"
+                        onclick="addNewUserButtonClick()"
+                        aria-label="Add new customer"
+                        title="Add new customer"
+                      >
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
+                        <span>New</span>
+                      </button>
+                    </div>
+                  </section>
 
-              <div>
-                <div class="liveSearchContainer">
-                  <input
-                    type="text"
-                    id="adminItemInput"
-                    class="liveSearch"
-                    placeholder="Item..."
-                  />
-                  <button class="liveSearchClearBtn" id="adminItemInputClrBtn">
-                    &times;
-                  </button>
-                  <ul id="adminItemInputULList" class="liveSearchUL"></ul>
+                  <section class="pos-section pos-section--item">
+                    <header class="pos-section__head">
+                      <span class="sale-step">2</span>
+                      <h3>Add item</h3>
+                      <span class="kbd-hint"><kbd>Ctrl</kbd> + <kbd>S</kbd> to add</span>
+                    </header>
+                    <div class="liveSearchContainer has-icon float">
+                      <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                      <input
+                        type="text"
+                        id="adminItemInput"
+                        class="liveSearch"
+                        placeholder=" "
+                        autocomplete="off"
+                      />
+                      <label for="adminItemInput" class="float-label"
+                        >Search item</label
+                      >
+                      <button class="liveSearchClearBtn" id="adminItemInputClrBtn">
+                        &times;
+                      </button>
+                      <ul id="adminItemInputULList" class="liveSearchUL"></ul>
+                    </div>
+                    <div class="add-item-grid">
+                      <div class="field has-icon has-suffix float">
+                        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18" /></svg>
+                        <input
+                          type="text"
+                          id="adminQuantityInput"
+                          placeholder=" "
+                          inputmode="decimal"
+                          autocomplete="off"
+                          oninput="restrictToNumberWithDecimalAndNegative(this)"
+                        />
+                        <label for="adminQuantityInput" class="float-label"
+                          >Quantity</label
+                        >
+                        <span class="field-suffix" id="adminQtyUnit" aria-hidden="true"></span>
+                      </div>
+                      <div class="field has-suffix float">
+                        <input
+                          type="text"
+                          id="adminDisInput"
+                          inputmode="decimal"
+                          placeholder=" "
+                          autocomplete="off"
+                          oninput="restrictToNumberWithDecimal(this)"
+                        />
+                        <label for="adminDisInput" class="float-label"
+                          >Discount</label
+                        >
+                        <span class="field-suffix" aria-hidden="true">%</span>
+                      </div>
+                      <button
+                        class="green add-btn"
+                        id="addItemInBillBtn"
+                        onclick="addItemInBill()"
+                      >
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                        <span>Add</span>
+                      </button>
+                    </div>
+                    <div class="item-preview" id="saleItemPreview" aria-live="polite">
+                      <span class="item-preview__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5Z" /><path d="m3 8 9 5 9-5M12 13v8" /></svg></span>
+                      <div class="item-preview__info">
+                        <span class="item-preview__name" id="saleItemPreviewName"></span>
+                        <span class="item-preview__meta" id="saleItemPreviewMeta"></span>
+                      </div>
+                      <div class="item-preview__total" id="saleItemPreviewTotal"></div>
+                    </div>
+                  </section>
+
+                  <section class="pos-section pos-section--payment">
+                    <header class="pos-section__head">
+                      <span class="sale-step">3</span>
+                      <h3>Payment</h3>
+                    </header>
+                    <div class="opt-grid">
+                      <fieldset class="opt-group">
+                        <legend class="opt-group__label required">Payment</legend>
+                        <div class="opt-group__list">
+                          <label class="opt-card opt-card--success">
+                            <input type="radio" name="paymentStatus" value="paid" id="paidStatus" />
+                            <span class="opt-card__box">
+                              <span class="opt-card__radio" aria-hidden="true"></span>
+                              <span class="opt-card__text">
+                                <span class="opt-card__title">Paid</span>
+                                <span class="opt-card__hint">Received</span>
+                              </span>
+                              <svg class="opt-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></svg>
+                            </span>
+                          </label>
+                          <label class="opt-card opt-card--warning">
+                            <input type="radio" name="paymentStatus" value="pending" id="pendingStatus" />
+                            <span class="opt-card__box">
+                              <span class="opt-card__radio" aria-hidden="true"></span>
+                              <span class="opt-card__text">
+                                <span class="opt-card__title">Pending</span>
+                                <span class="opt-card__hint">On credit</span>
+                              </span>
+                              <svg class="opt-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                            </span>
+                          </label>
+                        </div>
+                      </fieldset>
+                      <fieldset class="opt-group">
+                        <legend class="opt-group__label">Sale Type</legend>
+                        <div class="opt-group__list">
+                          <label class="opt-card opt-card--brand">
+                            <input type="radio" name="saleType" value="Bank" id="bankSale" checked />
+                            <span class="opt-card__box">
+                              <span class="opt-card__radio" aria-hidden="true"></span>
+                              <span class="opt-card__text">
+                                <span class="opt-card__title">Bank</span>
+                                <span class="opt-card__hint">UPI / card</span>
+                              </span>
+                              <svg class="opt-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M12 3 3 8h18Z" /></svg>
+                            </span>
+                          </label>
+                          <label class="opt-card opt-card--brand">
+                            <input type="radio" name="saleType" value="Cash" id="cashSale" />
+                            <span class="opt-card__box">
+                              <span class="opt-card__radio" aria-hidden="true"></span>
+                              <span class="opt-card__text">
+                                <span class="opt-card__title">Cash</span>
+                                <span class="opt-card__hint">In hand</span>
+                              </span>
+                              <svg class="opt-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2.5" /><path d="M6 12h.01M18 12h.01" /></svg>
+                            </span>
+                          </label>
+                        </div>
+                      </fieldset>
+                      <fieldset class="opt-group">
+                        <legend class="opt-group__label">GST Bill</legend>
+                        <div class="opt-group__list">
+                          <label class="opt-card opt-card--brand">
+                            <input type="radio" name="gstStatus" value="gstYes" id="gstYesStatus" />
+                            <span class="opt-card__box">
+                              <span class="opt-card__radio" aria-hidden="true"></span>
+                              <span class="opt-card__text">
+                                <span class="opt-card__title">Yes</span>
+                                <span class="opt-card__hint">With GST</span>
+                              </span>
+                              <svg class="opt-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2Z" /><path d="M9 8h6M9 12h6" /></svg>
+                            </span>
+                          </label>
+                          <label class="opt-card opt-card--brand">
+                            <input type="radio" name="gstStatus" value="gstNo" id="gstNoStatus" checked />
+                            <span class="opt-card__box">
+                              <span class="opt-card__radio" aria-hidden="true"></span>
+                              <span class="opt-card__text">
+                                <span class="opt-card__title">No</span>
+                                <span class="opt-card__hint">Without GST</span>
+                              </span>
+                              <svg class="opt-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m5.6 5.6 12.8 12.8" /></svg>
+                            </span>
+                          </label>
+                        </div>
+                      </fieldset>
+                    </div>
+                    <textarea
+                      id="commentsSaleInput"
+                      class="sale-comments"
+                      rows="2"
+                      maxlength="250"
+                      placeholder="Comments (optional)"
+                      aria-label="Comments (optional)"
+                    ></textarea>
+                  </section>
                 </div>
-              </div>
-              <div style="display: flex; align-items: center">
-                <div style="flex: 1 1 35%; padding-right: 10px">
-                  <input
-                    type="text"
-                    id="adminQuantityInput"
-                    placeholder="Quantity..."
-                    inputmode="numeric"
-                    oninput="restrictToNumberWithDecimalAndNegative(this)"
-                  />
-                </div>
-                <div style="flex: 1 1 35%; padding-right: 10px">
-                  <input
-                    type="text"
-                    id="adminDisInput"
-                    inputmode="numeric"
-                    placeholder="Discount..."
-                    oninput="restrictToNumberWithDecimal(this)"
-                  />
-                </div>
-                <div
-                  style="
-                    margin-top: -10px;
-                    flex: 0 0 15%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                  "
-                >
-                  <button
-                    class="green"
-                    id="addItemInBillBtn"
-                    onclick="addItemInBill()"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-              <div class="sale-selected-items">
-                <h3>Selected Items</h3>
-                <div
-                  class="collection-table-container scrollable-content-table"
-                  id="production-selected-items-table"
-                  style="margin-top: 20px"
-                >
-                  <table id="adSaleTable">
-                    <thead id="adSaleTableTHead" class="table-header">
-                      <tr>
-                        <th>Action</th>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Disc.</th>
-                        <th>S Disc.</th>
-                        <th>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody id="adSaleTableTBody">
-                      <!-- Table rows will be dynamically generated here -->
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div
-                style="display: flex; align-items: center; margin-bottom: 10px"
-              >
-                <div style="flex: 1 1 30%; padding-right: 10px">Payment:</div>
-                <div
-                  style="
-                    flex: 1 1 65%;
-                    padding-right: 10px;
-                    align-items: center;
-                    justify-content: center;
-                  "
-                >
-                  <input
-                    type="radio"
-                    name="paymentStatus"
-                    value="paid"
-                    id="paidStatus"
-                  />
-                  Paid
-                  <input
-                    type="radio"
-                    name="paymentStatus"
-                    value="pending"
-                    id="pendingStatus"
-                  />
-                  Pending
-                </div>
-              </div>
-              <div
-                style="display: flex; align-items: center; margin-bottom: 10px"
-              >
-                <div style="flex: 1 1 30%; padding-right: 10px">Sale Type:</div>
-                <div
-                  style="
-                    flex: 1 1 65%;
-                    padding-right: 24px;
-                    align-items: center;
-                    justify-content: center;
-                  "
-                >
-                  <input
-                    type="radio"
-                    name="saleType"
-                    value="Bank"
-                    id="bankSale"
-                    checked
-                  />
-                  Bank
-                  <input
-                    type="radio"
-                    name="saleType"
-                    value="Cash"
-                    id="cashSale"
-                  />
-                  Cash
-                </div>
-              </div>
-              <div
-                style="display: flex; align-items: center; margin-bottom: 10px"
-              >
-                <div style="flex: 1 1 30%; padding-right: 10px">
-                  GST Bill Required:
-                </div>
-                <div
-                  style="
-                    flex: 1 1 82%;
-                    padding-right: 10px;
-                    align-items: center;
-                    justify-content: center;
-                  "
-                >
-                  <input
-                    type="radio"
-                    name="gstStatus"
-                    value="gstYes"
-                    id="gstYesStatus"
-                  />
-                  Yes
-                  <input
-                    type="radio"
-                    name="gstStatus"
-                    value="gstNo"
-                    id="gstNoStatus"
-                    checked
-                  />
-                  No
-                </div>
-              </div>
-              <div>
-                <input
-                  type="input"
-                  placeholder="Comments if any..."
-                  id="commentsSaleInput"
-                />
-              </div>
-              <div class="total-row-container custom-control-row">
-                <div class="left">
-                  <button class="green" onclick="submitOrder()">
-                    Generate Bill
-                  </button>
-                </div>
-                <div class="right">
-                  <div class="total-cost" id="totalCost">Total: ₹0</div>
-                </div>
+
+                <aside class="pos-side">
+                  <section class="sale-cart is-empty" id="saleCart">
+                    <header class="pos-section__head">
+                      <span class="sale-step sale-step--icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" /><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" /></svg></span>
+                      <h3>Cart</h3>
+                      <span class="count-badge" id="adSaleItemCount">0 items</span>
+                    </header>
+                    <div
+                      class="collection-table-container cart-list"
+                      id="production-selected-items-table"
+                    >
+                      <table id="adSaleTable">
+                        <thead id="adSaleTableTHead" class="table-header">
+                          <tr>
+                            <th>Action</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Disc.</th>
+                            <th>S Disc.</th>
+                            <th>Total</th>
+                          </tr>
+                        </thead>
+                        <tbody id="adSaleTableTBody"></tbody>
+                      </table>
+                    </div>
+                    <div class="cart-empty">
+                      <span class="cart-empty__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" /><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" /></svg></span>
+                      <p>Cart is empty</p>
+                      <span>Search an item and press Add.</span>
+                    </div>
+                  </section>
+
+                  <div class="checkout-bar">
+                    <dl class="bill-summary">
+                      <div><dt>Customer</dt><dd id="sumCustomer">Not selected</dd></div>
+                      <div><dt>Items</dt><dd id="sumItems">0</dd></div>
+                      <div><dt>Payment</dt><dd id="sumPayment">Choose Paid / Pending</dd></div>
+                      <div><dt>Mode · GST</dt><dd id="sumMode">Bank · No GST</dd></div>
+                    </dl>
+                    <div class="checkout-bar__total">
+                      <span class="checkout-bar__label">Total</span>
+                      <span class="checkout-bar__amount" id="totalCost">₹0.00</span>
+                    </div>
+                    <button class="green checkout-bar__btn" onclick="submitOrder()">
+                      <span>Generate Bill</span>
+                      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                    </button>
+                    <p class="checkout-hint">Add at least one item to generate the bill.</p>
+                  </div>
+                </aside>
               </div>
             </div>
 
@@ -579,11 +791,12 @@
                   />
                 </div>
 
-                <div class="right-side-control" style="margin-top: -10px">
+                <div class="right-side-control">
                   <button
                     class="green"
                     id="productionInputBtn"
                     onclick="productionInput()"
+                    aria-label="Add production row"
                   >
                     +
                   </button>
@@ -592,7 +805,6 @@
               <div
                 class="collection-table-container scrollable-content-table"
                 id="production-selected-items-table"
-                style="margin-top: 20px"
               >
                 <table id="piTable">
                   <thead id="piTableTHead" class="table-header">
@@ -625,60 +837,139 @@
 
           <div
             id="adminKhataBook"
-            class="popup-content scrollable-content leftSideNav-itemContainer"
+            class="popup-content scrollable-content leftSideNav-itemContainer kb-screen"
           >
-            <div class="liveSearchContainer">
-              <input
-                type="text"
-                id="kbLiveSearchInput"
-                class="liveSearch"
-                placeholder="Select Item..."
-              />
+            <div class="kb-head">
+              <div>
+                <h2 class="kb-title">Khata Book</h2>
+                <p class="screen-sub">Customer credit balances and payments.</p>
+              </div>
               <button
-                class="liveSearchClearBtn"
-                id="kbLiveSearchInputClrBtn"
-                onclick="kbLiveSearchInputClrBtnClick()"
+                type="button"
+                class="soft-btn kb-download"
+                id="cmPendingDonorDownloadBtn"
+                onclick="khataBookUserGridBtnClick('kbTable')"
               >
-                &times;
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                <span>Download Excel</span>
               </button>
-              <ul id="kbLiveSearchInputULList" class="liveSearchUL"></ul>
             </div>
-            <div
-              class="collection-table-container scrollable-content-table"
-              id="kbTableDiv"
-            >
-              <div class="download-icon-container">
-                <img
-                  id="cmPendingDonorDownloadBtn"
-                  src="https://cdn-thumbs.imagevenue.com/85/09/8b/ME196HF8_t.png"
-                  alt="Download Excel"
-                  class="download-icon"
-                  onclick="khataBookUserGridBtnClick('kbTable')"
-                />
+
+            <div class="kb-stats">
+              <div class="kb-stat kb-stat--due">
+                <span class="kb-stat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></span>
+                <span class="kb-stat__text">
+                  <span class="kb-stat__label">To collect</span>
+                  <b id="kbStatDue">₹0</b>
+                  <small id="kbStatDueCount">0 customers</small>
+                </span>
               </div>
-              <table id="kbTable">
-                <thead id="kbTableTHead" class="table-header">
-                  <!-- Table headers will be dynamically generated here -->
-                </thead>
-                <tbody id="kbTableTBody">
-                  <!-- Table rows will be dynamically generated here -->
-                </tbody>
-              </table>
-            </div>
-            <div class="custom-control-row">
-              <div class="left-side-control45">
-                <input type="text" id="kbAmountInput" placeholder="Amount..." />
+              <div class="kb-stat kb-stat--adv">
+                <span class="kb-stat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 7 7 17M16 17H7V8" /></svg></span>
+                <span class="kb-stat__text">
+                  <span class="kb-stat__label">Advance</span>
+                  <b id="kbStatAdv">₹0</b>
+                  <small id="kbStatAdvCount">0 customers</small>
+                </span>
               </div>
-              <div class="right-side-control45" style="margin-top: -5px">
-                <select id="kbCashBankDdl" required>
-                  <option value="">Select</option>
-                  <option value="Bank">Bank</option>
-                  <option value="Cash">Cash</option>
-                </select>
+              <div class="kb-stat">
+                <span class="kb-stat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" /></svg></span>
+                <span class="kb-stat__text">
+                  <span class="kb-stat__label">Customers</span>
+                  <b id="kbStatCount">0</b>
+                  <small>with a balance</small>
+                </span>
               </div>
             </div>
-            <div>
-              <button class="green" onclick="submitKBAmount()">Proceed</button>
+
+            <div class="kb-layout">
+              <section class="kb-list-card">
+                <div class="liveSearchContainer has-icon float">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                  <input
+                    type="text"
+                    id="kbLiveSearchInput"
+                    class="liveSearch"
+                    placeholder=" "
+                    autocomplete="off"
+                  />
+                  <label for="kbLiveSearchInput" class="float-label"
+                    >Search customer</label
+                  >
+                  <button
+                    class="liveSearchClearBtn"
+                    id="kbLiveSearchInputClrBtn"
+                    onclick="kbLiveSearchInputClrBtnClick()"
+                  >
+                    &times;
+                  </button>
+                  <ul id="kbLiveSearchInputULList" class="liveSearchUL"></ul>
+                </div>
+                <div
+                  class="collection-table-container scrollable-content-table kb-table-wrap"
+                  id="kbTableDiv"
+                >
+                  <table id="kbTable">
+                    <thead id="kbTableTHead" class="table-header"></thead>
+                    <tbody id="kbTableTBody"></tbody>
+                  </table>
+                </div>
+                <p class="kb-empty" id="kbEmpty">No customers with a balance.</p>
+              </section>
+
+              <aside class="kb-pay-card" id="kbPayCard">
+                <header class="pos-section__head">
+                  <span class="sale-step sale-step--icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12M6 8h12M6 13l8.5 8M6 13h3M9 13c6.7 0 6.7-10 0-10" /></svg></span>
+                  <h3>Record payment</h3>
+                </header>
+                <div class="kb-selected" id="kbSelected">
+                  <span class="kb-avatar" id="kbSelectedAvatar">?</span>
+                  <span class="kb-selected__text">
+                    <b id="kbSelectedName">No customer selected</b>
+                    <small id="kbSelectedBalance">Pick a customer from the list</small>
+                  </span>
+                </div>
+                <div class="field has-icon float">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12M6 8h12M6 13l8.5 8M6 13h3M9 13c6.7 0 6.7-10 0-10" /></svg>
+                  <input
+                    type="text"
+                    id="kbAmountInput"
+                    placeholder=" "
+                    inputmode="decimal"
+                    autocomplete="off"
+                  />
+                  <label for="kbAmountInput" class="float-label">Amount received</label>
+                </div>
+                <span class="opt-group__label kb-mode-label">Paid by</span>
+                <div class="opt-group__list kb-mode">
+                <label class="opt-card opt-card--brand">
+                  <input type="radio" name="kbPayMode" value="Bank" id="kbPayModeBank" />
+                  <span class="opt-card__box">
+                    <span class="opt-card__radio" aria-hidden="true"></span>
+                    <span class="opt-card__text">
+                      <span class="opt-card__title">Bank</span>
+                      <span class="opt-card__hint">UPI / card</span>
+                    </span>
+                    <svg class="opt-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M12 3 3 8h18Z" /></svg>
+                  </span>
+                </label>
+                <label class="opt-card opt-card--brand">
+                  <input type="radio" name="kbPayMode" value="Cash" id="kbPayModeCash" />
+                  <span class="opt-card__box">
+                    <span class="opt-card__radio" aria-hidden="true"></span>
+                    <span class="opt-card__text">
+                      <span class="opt-card__title">Cash</span>
+                      <span class="opt-card__hint">In hand</span>
+                    </span>
+                    <svg class="opt-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2.5" /><path d="M6 12h.01M18 12h.01" /></svg>
+                  </span>
+                </label>
+                </div>
+                <button class="green kb-submit" onclick="submitKBAmount()">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+                  <span>Save payment</span>
+                </button>
+              </aside>
             </div>
           </div>
 
@@ -762,48 +1053,47 @@
             id="libIssueBook"
             class="popup-content scrollable-content leftSideNav-itemContainer"
           >
-            <div class="custom-control-row">
-              <div class="left-side-control45">Devotee Name:</div>
-              <div class="right-side-control55">
-                <div class="liveSearchContainer">
-                  <input
-                    type="text"
-                    id="libCustName"
-                    class="liveSearch"
-                    placeholder="Lib Cust Name..."
-                  />
-                  <button id="libCustNameClrBtn" class="liveSearchClearBtn">
-                    &times;
-                  </button>
-                  <ul id="libCustNameULList" class="liveSearchUL"></ul>
-                </div>
-              </div>
+            <h2>Issue Book</h2>
+            <p class="screen-sub">
+              Choose a library member and an available book, then set the issue
+              date.
+            </p>
+
+            <label for="libCustName" class="required">Devotee Name</label>
+            <div class="liveSearchContainer">
+              <input
+                type="text"
+                id="libCustName"
+                class="liveSearch"
+                placeholder="Search member name..."
+                autocomplete="off"
+              />
+              <button id="libCustNameClrBtn" class="liveSearchClearBtn">
+                &times;
+              </button>
+              <ul id="libCustNameULList" class="liveSearchUL"></ul>
             </div>
-            <div class="custom-control-row">
-              <div class="left-side-control45">Book Name:</div>
-              <div class="right-side-control55">
-                <div class="liveSearchContainer">
-                  <input
-                    type="text"
-                    id="libBookName"
-                    class="liveSearch"
-                    placeholder="Book Name..."
-                  />
-                  <button class="liveSearchClearBtn" id="libBookNameCrlBtn">
-                    &times;
-                  </button>
-                  <ul id="libBookNameULList" class="liveSearchUL"></ul>
-                </div>
-              </div>
+
+            <label for="libBookName" class="required">Book Name</label>
+            <div class="liveSearchContainer">
+              <input
+                type="text"
+                id="libBookName"
+                class="liveSearch"
+                placeholder="Search available books..."
+                autocomplete="off"
+              />
+              <button class="liveSearchClearBtn" id="libBookNameCrlBtn">
+                &times;
+              </button>
+              <ul id="libBookNameULList" class="liveSearchUL"></ul>
             </div>
-            <div class="custom-control-row">
-              <div class="left-side-control45">Issue Date:</div>
-              <div class="right-side-control55">
-                <input type="date" id="libBookIssueDate" required />
-              </div>
-            </div>
+
+            <label for="libBookIssueDate" class="required">Issue Date</label>
+            <input type="date" id="libBookIssueDate" required />
+
             <div class="button-row">
-              <button class="red" onclick="">Reset</button>
+              <button class="red" onclick="resetLibBookForm()">Clear</button>
               <button class="green" onclick="issueLibBook()">Issue Book</button>
             </div>
           </div>
@@ -813,156 +1103,203 @@
             class="popup-content scrollable-content leftSideNav-itemContainer"
           >
             <h2>New Membership</h2>
-            <div class="custom-control-row">
-              <div class="left-side-control45 required">User Name:</div>
-              <div class="right-side-control55">
-                <input
-                  type="text"
-                  id="newUserTxtBoxMShip"
-                  placeholder="User Name..."
-                  inputmode="numeric"
-                  required
-                />
-              </div>
-            </div>
-            <div class="custom-control-row">
-              <div class="left-side-control45 required">Mobile Number:</div>
-              <div class="right-side-control55">
-                <input
-                  type="text"
-                  id="mobileNumberTxtBoxMShip"
-                  oninput="
-                    this.value = this.value
-                      .replace(/[^0-9.]/g, '')
-                      .replace(/(\..*)\./g, '$1')
-                      .replace(/^(\d*\.\d{2}).*/, '$1')
-                  "
-                  placeholder="Mobile No..."
-                  inputmode="numeric"
-                  required
-                />
-              </div>
-            </div>
-            <div class="custom-control-row">
-              <div class="left-side-control45">Email:</div>
-              <div class="right-side-control55">
-                <input
-                  type="text"
-                  id="emailTxtBoxMShip"
-                  placeholder="Email..."
-                  required
-                />
-              </div>
-            </div>
+            <p class="screen-sub">
+              Add a devotee as a library member so books can be issued to them.
+            </p>
+
+            <label for="newUserTxtBoxMShip" class="required">User Name</label>
+            <input
+              type="text"
+              id="newUserTxtBoxMShip"
+              placeholder="Full name..."
+              autocomplete="off"
+              required
+            />
+
+            <label for="mobileNumberTxtBoxMShip" class="required"
+              >Mobile Number</label
+            >
+            <input
+              type="text"
+              id="mobileNumberTxtBoxMShip"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+              placeholder="10-digit mobile number..."
+              inputmode="tel"
+              maxlength="10"
+              required
+            />
+
+            <label for="emailTxtBoxMShip">Email</label>
+            <input
+              type="text"
+              id="emailTxtBoxMShip"
+              placeholder="Email (optional)..."
+              inputmode="email"
+            />
+
             <div class="button-row">
-              <button class="red" onclick="backClickFromMemberShip()">
-                Reset
+              <button class="red" onclick="resetLibMembershipForm()">
+                Clear
               </button>
               <button class="green" onclick="newLibMembershipInsert()">
-                Insert
+                Add Member
               </button>
             </div>
           </div>
 
           <div
             id="adminNKDCommunitySale"
-            class="popup-content scrollable-content leftSideNav-itemContainer"
-            style="height: 508px"
+            class="popup-content scrollable-content leftSideNav-itemContainer sale-screen nkd-screen"
           >
-            <div class="custom-control-row">
-              <div class="left-side-control">
-                <div class="dropdownSelect">
-                  <input
-                    type="text"
-                    id="adminCustNameNKD"
-                    placeholder="Select Customer..."
-                  />
+            <div class="sale-head">
+              <div class="sale-head__title">
+                <h2 class="admin-panel-title">NKD Community Sale</h2>
+                <span class="date-chip">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2Z" /><path d="M9 8h6M9 12h6" /></svg>
+                  <span>GST bill</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="pos">
+              <div class="pos-main">
+                <section class="pos-section pos-section--customer">
+                  <header class="pos-section__head">
+                    <span class="sale-step">1</span>
+                    <h3>Customer</h3>
+                  </header>
+                  <div class="liveSearchContainer has-icon float">
+                    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
+                    <input
+                      type="text"
+                      id="adminCustNameNKD"
+                      class="liveSearch"
+                      placeholder=" "
+                      autocomplete="off"
+                    />
+                    <label for="adminCustNameNKD" class="float-label"
+                      >Customer name</label
+                    >
+                    <button class="liveSearchClearBtn" id="adminCustNameNKDClrBtn">
+                      &times;
+                    </button>
+                    <ul id="adminCustNameNKDULList" class="liveSearchUL"></ul>
+                  </div>
+                  <p class="field-hint">Pick from the list, or type a new name.</p>
+                </section>
+
+                <section class="pos-section pos-section--item">
+                  <header class="pos-section__head">
+                    <span class="sale-step">2</span>
+                    <h3>Add item</h3>
+                  </header>
+                  <div class="liveSearchContainer has-icon float">
+                    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                    <input
+                      type="text"
+                      id="adminItemInputNKD"
+                      class="liveSearch"
+                      placeholder=" "
+                      autocomplete="off"
+                    />
+                    <label for="adminItemInputNKD" class="float-label"
+                      >Search item</label
+                    >
+                    <button class="liveSearchClearBtn" id="adminItemInputClrBtnNKD">
+                      &times;
+                    </button>
+                    <ul id="adminItemInputULListNKD" class="liveSearchUL"></ul>
+                  </div>
+                  <div class="add-item-grid">
+                    <div class="field has-icon float">
+                      <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18" /></svg>
+                      <input
+                        type="text"
+                        id="adminQuantityInputNKD"
+                        placeholder=" "
+                        inputmode="decimal"
+                        autocomplete="off"
+                        oninput="restrictToNumberWithDecimalAndNegative(this)"
+                      />
+                      <label for="adminQuantityInputNKD" class="float-label"
+                        >Quantity</label
+                      >
+                    </div>
+                    <div class="field has-suffix float">
+                      <input
+                        type="text"
+                        id="adminDisInputNKD"
+                        inputmode="decimal"
+                        placeholder=" "
+                        autocomplete="off"
+                        oninput="restrictToNumberWithDecimal(this)"
+                      />
+                      <label for="adminDisInputNKD" class="float-label"
+                        >Discount</label
+                      >
+                      <span class="field-suffix" aria-hidden="true">%</span>
+                    </div>
+                    <button
+                      class="green add-btn"
+                      id="addItemInBillBtnNKD"
+                      onclick="addItemInBillNKD()"
+                    >
+                      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                      <span>Add</span>
+                    </button>
+                  </div>
+                </section>
+              </div>
+
+              <aside class="pos-side">
+                <section class="sale-cart is-empty" id="nkdCart">
+                  <header class="pos-section__head">
+                    <span class="sale-step sale-step--icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" /><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" /></svg></span>
+                    <h3>Bill items</h3>
+                    <span class="count-badge" id="nkdItemCount">0 items</span>
+                  </header>
+                  <div class="collection-table-container nkd-list">
+                    <table id="billTable">
+                      <thead class="table-header">
+                        <tr>
+                          <th>Remove</th>
+                          <th>Item</th>
+                          <th>Qty</th>
+                          <th>Price</th>
+                          <th>Discount</th>
+                          <th>Base Amount</th>
+                          <th>GST %</th>
+                          <th>GST Amount</th>
+                          <th>Total Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody id="billTableBodyNKD"></tbody>
+                    </table>
+                  </div>
+                  <div class="cart-empty">
+                    <span class="cart-empty__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" /><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" /></svg></span>
+                    <p>No items yet</p>
+                    <span>Search an item and press Add.</span>
+                  </div>
+                </section>
+
+                <div class="checkout-bar">
+                  <dl class="bill-summary">
+                    <div><dt>Customer</dt><dd id="nkdSumCustomer">Not selected</dd></div>
+                    <div><dt>Items</dt><dd id="nkdSumItems">0 items</dd></div>
+                    <div><dt>GST included</dt><dd id="nkdSumGst">₹0.00</dd></div>
+                  </dl>
+                  <div class="checkout-bar__total">
+                    <span class="checkout-bar__label">Total (incl. GST)</span>
+                    <span class="checkout-bar__amount" id="totalCostNKD">₹0.00</span>
+                  </div>
+                  <button class="green checkout-bar__btn" onclick="submitOrderNKD()">
+                    <span>Generate Bill</span>
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  </button>
+                  <p class="checkout-hint">Add at least one item to generate the bill.</p>
                 </div>
-              </div>
-            </div>
-
-            <div>
-              <div class="liveSearchContainer">
-                <input
-                  type="text"
-                  id="adminItemInputNKD"
-                  class="liveSearch"
-                  placeholder="Item..."
-                />
-                <button class="liveSearchClearBtn" id="adminItemInputClrBtnNKD">
-                  &times;
-                </button>
-                <ul id="adminItemInputULListNKD" class="liveSearchUL"></ul>
-              </div>
-            </div>
-            <div style="display: flex; align-items: center">
-              <div style="flex: 1 1 35%; padding-right: 10px">
-                <input
-                  type="text"
-                  id="adminQuantityInputNKD"
-                  placeholder="Quantity..."
-                  inputmode="numeric"
-                  oninput="restrictToNumberWithDecimalAndNegative(this)"
-                />
-              </div>
-              <div style="flex: 1 1 35%; padding-right: 10px">
-                <input
-                  type="text"
-                  id="adminDisInputNKD"
-                  inputmode="numeric"
-                  placeholder="Discount..."
-                  oninput="restrictToNumberWithDecimal(this)"
-                />
-              </div>
-              <div
-                style="
-                  margin-top: -10px;
-                  flex: 0 0 15%;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                "
-              >
-                <button
-                  class="green"
-                  id="addItemInBillBtnNKD"
-                  onclick="addItemInBillNKD()"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <table
-              id="billTable"
-              border="1"
-              style="margin-top: 10px; width: 100%; border-collapse: collapse"
-            >
-              <thead>
-                <tr>
-                  <th>❌</th>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Discount</th>
-                  <th>Base Amount</th>
-                  <th>GST %</th>
-                  <th>GST Amount</th>
-                  <th>Total Amount</th>
-                </tr>
-              </thead>
-              <tbody id="billTableBodyNKD"></tbody>
-            </table>
-
-            <div class="total-row-container custom-control-row">
-              <div class="left">
-                <button class="green" onclick="submitOrderNKD()">
-                  Generate Bill
-                </button>
-              </div>
-              <div class="right">
-                <div class="total-cost" id="totalCostNKD">Total: ₹0</div>
-              </div>
+              </aside>
             </div>
           </div>
 
@@ -970,10 +1307,43 @@
             id="natureGSTBill"
             class="popup-content scrollable-content leftSideNav-itemContainer"
           >
-            <div class="button-row">
-              <button class="green" onclick="processNatureGSTBillRequest()">
-                Generate Natures GST Bill
-              </button>
+            <div class="gst-page">
+              <div class="kb-head">
+                <div>
+                  <h2 class="kb-title">Nature GST Bills</h2>
+                  <p class="screen-sub">Create the GST invoice for Natures sales in one click.</p>
+                </div>
+              </div>
+
+              <section class="gst-hero">
+                <span class="gst-hero__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2Z" /><path d="M9 8h6M9 12h6M9 16h3" /></svg></span>
+                <div class="gst-hero__text">
+                  <h3>Generate GST invoice</h3>
+                  <p>Collects the GST sales, builds the invoice and saves it. It can take a minute.</p>
+                  <ol class="gst-steps">
+                    <li><span>1</span>Collect GST sales</li>
+                    <li><span>2</span>Build the invoice</li>
+                    <li><span>3</span>Show the result</li>
+                  </ol>
+                </div>
+                <button
+                  class="green gst-btn"
+                  id="gstGenerateBtn"
+                  onclick="processNatureGSTBillRequest()"
+                >
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7Z" /></svg>
+                  <span>Generate GST Bill</span>
+                </button>
+              </section>
+
+              <section class="gst-status is-idle" id="gstStatus" aria-live="polite">
+                <span class="gst-status__dot" aria-hidden="true"></span>
+                <div class="gst-status__text">
+                  <b id="gstStatusTitle">Ready</b>
+                  <small id="gstStatusMsg">No invoice generated in this session yet.</small>
+                </div>
+                <span class="gst-status__time" id="gstStatusTime"></span>
+              </section>
             </div>
           </div>
         </div>
@@ -981,37 +1351,6 @@
 
       <div class="popup" id="userHomeContainer">
         <div class="popup-content">
-          <button
-            class="leftSideNav-menuBtn"
-            onclick="openLeftNavBar('leftSideNavUser', 'NKD Users')"
-          >
-            ☰ NKD Users
-          </button>
-
-          <!-- Sidebar Navigation -->
-          <div id="leftSideNavUser" class="leftSideNav">
-            <!-- Clients -->
-            <!-- <a
-              href="#userHome"
-              class="leftNavBarUser-dynamicNavLink"
-              data-form="userHome"
-              >Home</a
-            > -->
-
-            <a
-              href="#userOrder"
-              class="leftNavBarUser-dynamicNavLink"
-              data-form="userOrder"
-              >Grocery Order</a
-            >
-
-            <a
-              href="#userPastOrders"
-              class="leftNavBarUser-dynamicNavLink"
-              data-form="userPastOrders"
-              >Past Orders</a
-            >
-          </div>
 
           <!--  Sidebar Contect -->
           <div class="leftSideNav-contentContainer">
@@ -1027,14 +1366,12 @@
                     id="searchHMTableInput"
                     placeholder="Search items..."
                     onkeyup="filterHMTableRows()"
-                    style="margin-bottom: 10px; padding: 5px; width: 100%"
                   />
                 </div>
 
                 <div
                   class="collection-table-container scrollable-content-table"
                   id="hmTableDiv"
-                  style="margin-top: 10px"
                 >
                   <table id="hmTable">
                     <thead id="hmTableTHead" class="table-header">
@@ -1054,28 +1391,63 @@
               class="popup-content scrollable-content-list leftSideNav-itemContainer"
             >
               <div class="user-order-container">
-                <input
-                  type="text"
-                  id="search-box"
-                  class="search-box"
-                  placeholder="🔍 Search by name or price..."
-                  oninput="filterUOProducts()"
-                />
+                <!-- search + cart summary, stuck to the top while scrolling -->
+                <div class="uo-topbar">
+                  <div class="uo-topbar__row">
+                    <div class="uo-search has-icon">
+                      <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                      <input
+                        type="text"
+                        id="search-box"
+                        class="search-box"
+                        placeholder="Search products, category or price…"
+                        autocomplete="off"
+                        oninput="filterUOProducts()"
+                      />
+                      <button
+                        type="button"
+                        class="uo-search__clear"
+                        onclick="clearUOSearch()"
+                        aria-label="Clear search"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                    <div class="uo-footer">
+                      <span class="uo-footer__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18M16 10a4 4 0 0 1-8 0" /></svg></span>
+                      <div class="uo-footer__info">
+                        <span class="uo-footer__label">Order total</span>
+                        <span class="uo-footer__count" id="uoItemCount">No items yet</span>
+                      </div>
+                      <div class="total-price-container">
+                        <strong>₹<span id="total-price">0</span></strong>
+                      </div>
+                      <div class="button-row">
+                        <button
+                          class="green"
+                          style="display: none"
+                          onclick="onUserOrderSubmitClick()"
+                        >
+                          Submit Order
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uo-toolbar">
+                    <span class="uo-toolbar__info" id="uoResultInfo"></span>
+                    <button
+                      type="button"
+                      class="uo-link"
+                      id="uoToggleAllBtn"
+                      onclick="toggleAllUOCategories()"
+                    >
+                      Expand all
+                    </button>
+                  </div>
+                </div>
                 <div class="scrollable-content-user-order-list">
                   <div id="category-list"></div>
                   <div id="product-list"></div>
-                </div>
-                <div class="total-price-container">
-                  <strong>Total: ₹<span id="total-price">0</span></strong>
-                </div>
-                <div class="button-row">
-                  <button
-                    class="green"
-                    style="display: none"
-                    onclick="onUserOrderSubmitClick()"
-                  >
-                    Submit Order
-                  </button>
                 </div>
               </div>
             </div>

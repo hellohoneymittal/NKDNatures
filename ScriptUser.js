@@ -248,17 +248,61 @@ function filterUOProducts() {
   renderUserOrderProducts();
 }
 
-function toggleCategory(category) {
-  const categoryDiv = document.getElementById(`category-${category}`);
+// Categories the user has opened (kept across search re-renders)
+const uoOpenCategories = new Set();
 
-  if (
-    categoryDiv.style.display === "none" ||
-    categoryDiv.style.display === ""
-  ) {
-    categoryDiv.style.display = "block";
-  } else if (categoryDiv.style.display === "block") {
-    categoryDiv.style.display = "none";
+// Accordion: open / close one category (animated in CSS)
+function toggleCategory(category, forceOpen) {
+  const categoryDiv = document.getElementById(`category-${category}`);
+  const wrapper = categoryDiv?.closest(".category");
+  if (!wrapper) return;
+  const isOpen =
+    typeof forceOpen === "boolean"
+      ? forceOpen
+      : !wrapper.classList.contains("is-open");
+  wrapper.classList.toggle("is-open", isOpen);
+  wrapper
+    .querySelector(".category-header")
+    ?.setAttribute("aria-expanded", String(isOpen));
+  if (isOpen) {
+    uoOpenCategories.add(category);
+  } else {
+    uoOpenCategories.delete(category);
   }
+  updateUOToolbar();
+}
+
+function toggleAllUOCategories() {
+  const categories = [...new Set(products.map((p) => p.category))];
+  const openAll = categories.some((c) => !uoOpenCategories.has(c));
+  categories.forEach((category) => toggleCategory(category, openAll));
+}
+
+function clearUOSearch() {
+  const search = document.getElementById("search-box");
+  search.value = "";
+  filterUOProducts();
+  search.focus();
+}
+
+function updateUOToolbar() {
+  const query = document.getElementById("search-box")?.value.trim();
+  const categories = [...new Set(products.map((p) => p.category))];
+  const info = document.getElementById("uoResultInfo");
+  if (info) {
+    info.textContent = query
+      ? `${products.length} ${products.length === 1 ? "product" : "products"} found`
+      : `${categories.length} categories · ${products.length} products`;
+  }
+  const toggleAll = document.getElementById("uoToggleAllBtn");
+  if (toggleAll) {
+    const allOpen =
+      categories.length > 0 && categories.every((c) => uoOpenCategories.has(c));
+    toggleAll.textContent = allOpen ? "Collapse all" : "Expand all";
+  }
+  document
+    .querySelector(".uo-search")
+    ?.classList.toggle("has-value", Boolean(query));
 }
 
 function renderUserOrderProducts() {
@@ -268,24 +312,49 @@ function renderUserOrderProducts() {
   categoryList.innerHTML = ""; // Clear existing categories
 
   const categories = [...new Set(products.map((p) => p.category))];
+  const isSearching = Boolean(
+    document.getElementById("search-box")?.value.trim(),
+  );
 
-  categories.forEach((category) => {
+  categories.forEach((category, index) => {
+    const count = products.filter((p) => p.category === category).length;
     const categoryDiv = document.createElement("div");
     categoryDiv.classList.add("category");
+    categoryDiv.style.animationDelay = `${Math.min(index, 8) * 40}ms`;
+    // while searching every matching category is open
+    const isOpen = isSearching || uoOpenCategories.has(category);
+    categoryDiv.classList.toggle("is-open", isOpen);
+    if (isSearching) uoOpenCategories.add(category);
 
     categoryDiv.innerHTML = `
-      <div class="category-header" onclick="toggleCategory('${category}')">
-        <span class="category-title" id="category-title-${category}">${category}</span> 
+      <button type="button" class="category-header" aria-expanded="${isOpen}">
+        <span class="category-dot" aria-hidden="true"></span>
+        <span class="category-title" id="category-title-${category}"></span>
+        <span class="category-count">${count}</span>
+        <span class="category-amount" id="category-amount-${category}"></span>
+        <span class="category-chev" aria-hidden="true"></span>
+      </button>
+      <div class="category-body">
+        <div id="category-${category}" class="category-products"></div>
       </div>
-      <div id="category-${category}" class="category-products"></div>
     `;
+    categoryDiv.querySelector(".category-title").textContent = category;
+    categoryDiv
+      .querySelector(".category-header")
+      .addEventListener("click", () => toggleCategory(category));
 
     categoryList.appendChild(categoryDiv);
   });
 
+  if (!categories.length) {
+    categoryList.innerHTML =
+      '<p class="list-empty">No products match your search.</p>';
+  }
+
   renderProducts(); // Render the products inside their categories
 
   uoUpdateTotal(); // Update category-wise total
+  updateUOToolbar();
 }
 
 function formatAvailable(available) {
@@ -314,20 +383,26 @@ function renderProducts() {
       }
 
       productDiv.innerHTML = `
-      <div class="flex-container user-order-item-container">
-        
-        <div class="flex-item-left details">
-          <h4 style="margin: 3px">${product.name}</h4>
-        </div>
-        <div class="flex-item-right">
-          <p style="margin: 3px">
-            ${
-              product.type === PRODUCT_TYPE_CONSTANT.wgt
-                ? `₹${product.price}/kg`
-                : `₹${product.price}/item`
-            } | Avl: ${formatAvailable(product.available)}
-          </p>
-        </div>
+      <div class="user-order-item-container uo-card__top">
+        <span class="uo-card__badge" aria-hidden="true">${String(
+          product.name || "?",
+        )
+          .trim()
+          .charAt(0)
+          .toUpperCase()}</span>
+        <h4 class="uo-card__name" title="${product.name}">${product.name}</h4>
+      </div>
+      <div class="uo-card__meta">
+        <span class="uo-price">₹${product.price}<small>/${
+          product.type === PRODUCT_TYPE_CONSTANT.wgt ? "kg" : "item"
+        }</small></span>
+        <span class="uo-stock ${
+          Number(product.available) <= 2 ? "is-low" : ""
+        }">${
+          Number(product.available) <= 2
+            ? `Only ${formatAvailable(product.available)} left`
+            : `${formatAvailable(product.available)} in stock`
+        }</span>
       </div>
       <div class="flex-container user-order-quantity-container" data-product-id="${
         product.id
@@ -336,7 +411,7 @@ function renderProducts() {
           <button class="minus-btn" onclick="updateQuantity(${
             product.id
           }, -1)" ${cartItem.quantity === 0 ? "disabled" : ""}>-</button>
-          <span class="quantity-value" style="padding: 0px 5px;font-size: 16px;margin-top: 10px;">${
+          <span class="quantity-value">${
             cartItem.quantity
           }</span>
           <button class="plus-btn" onclick="updateQuantity(${product.id}, 1)" ${
@@ -524,20 +599,40 @@ function uoUpdateTotal() {
     categoryTotals[product.category] += parseFloat(itemTotal);
   });
 
-  //  Update category-wise total UI
-  Object.keys(categoryTotals).forEach((category) => {
-    const categoryTitle = document.getElementById(`category-title-${category}`);
-    if (categoryTitle) {
-      categoryTitle.textContent = `${category} - ₹${categoryTotals[
-        category
-      ].toFixed(2)}`;
-    }
+  //  Update category-wise total UI (badge next to the category name)
+  document.querySelectorAll(".category-amount").forEach((badge) => {
+    const category = badge.id.replace("category-amount-", "");
+    const amount = categoryTotals[category] || 0;
+    badge.textContent = amount > 0 ? `₹${amount.toFixed(2)}` : "";
+    badge.classList.toggle("has-amount", amount > 0);
   });
 
   // Ensure total is actually displayed in the UI
   const totalPriceElement = document.getElementById("total-price");
   if (totalPriceElement) {
     totalPriceElement.textContent = parseFloat(overallTotal.toFixed(2));
+  }
+
+  // "3 items in your order" under the footer label
+  const itemCount = Object.values(cart).filter(
+    (entry) => Number(entry?.quantity) > 0,
+  ).length;
+  const countElement = document.getElementById("uoItemCount");
+  if (countElement) {
+    countElement.textContent = itemCount
+      ? `${itemCount} ${itemCount === 1 ? "item" : "items"} in your order`
+      : "Tap + on any product to add it";
+  }
+  const footer = document.querySelector(".uo-footer");
+  if (footer) {
+    footer.classList.toggle("has-items", itemCount > 0);
+    const label = footer.querySelector(".uo-footer__label");
+    if (label) label.textContent = itemCount ? "Order total" : "Your cart is empty";
+    // replay the bump on every change
+    const amount = footer.querySelector(".total-price-container");
+    amount?.classList.remove("is-bumped");
+    void amount?.offsetWidth;
+    amount?.classList.add("is-bumped");
   }
 }
 
@@ -592,7 +687,7 @@ async function onUserOrderSubmitClick() {
   };
 
   return;
-  const response = await CALL_API("SAVE_USER_ORDER_DATA", request);
+  const response = await CALL_API_CF("SAVE_USER_ORDER_DATA", request);
 
   if (response?.status) {
     SHOW_SUCCESS_POPUP("Your order accepted, thank you!");
