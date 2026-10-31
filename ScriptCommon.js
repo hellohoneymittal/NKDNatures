@@ -12433,7 +12433,18 @@ function callSetupLiveSearchClearableInput(
 function setupLiveSearch(inputCtrlId, clearBtnCtrlId, ulListId, callback) {
   const inputCtrl = document.getElementById(inputCtrlId);
 
-  inputCtrl.addEventListener("keyup", function () {
+  inputCtrl.addEventListener("keyup", function (event) {
+    if (
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey ||
+      (event.key.length !== 1 &&
+        event.key !== "Backspace" &&
+        event.key !== "Delete")
+    ) {
+      return;
+    }
+
     callFilterLiveSearchList(
       inputCtrlId,
       clearBtnCtrlId,
