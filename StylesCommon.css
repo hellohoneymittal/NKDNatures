@@ -3371,7 +3371,7 @@ td button {
 .pos {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 480px;
-  align-items: start;
+  align-items: stretch;
   gap: 20px;
 }
 
@@ -3600,6 +3600,9 @@ button.soft-btn:not(:disabled):hover {
 }
 
 .sale-cart {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   padding: 16px;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -3786,6 +3789,8 @@ button.soft-btn:not(:disabled):hover {
 
 .sale-cart.is-empty .cart-empty {
   display: flex;
+  flex: 1;
+  justify-content: center;
   -webkit-animation: fadeIn 0.3s ease;
   animation: fadeIn 0.3s ease;
 }
