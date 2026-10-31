@@ -738,7 +738,7 @@ legend {
   display: none;
   justify-content: center;
   align-items: flex-start;
-  padding: 32px 24px 48px;
+  padding: 5px 24px 48px;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -3041,7 +3041,6 @@ body.has-drawer .drawer-backdrop {
 
 /* Feature screens sit flat inside the page card */
 .popup-content .leftSideNav-itemContainer {
-  margin: 16px 0 0;
   padding: 0;
   background: transparent;
   border: 0;
