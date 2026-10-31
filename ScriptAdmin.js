@@ -345,6 +345,7 @@ function addItemInBill() {
 
   adminItemInputCtrl.value = "";
   document.getElementById("adminItemInputClrBtn").style.display = "none";
+  document.getElementById("adminItemInputULList").style.display = "none";
   adminQtyInputCtrl.value = "";
   adminDisInputCtrl.value = "";
 
