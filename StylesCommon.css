@@ -738,7 +738,7 @@ legend {
   display: none;
   justify-content: center;
   align-items: flex-start;
-  padding: 32px 24px 48px;
+  padding: 5px 24px 48px;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -3041,7 +3041,6 @@ body.has-drawer .drawer-backdrop {
 
 /* Feature screens sit flat inside the page card */
 .popup-content .leftSideNav-itemContainer {
-  margin: 16px 0 0;
   padding: 0;
   background: transparent;
   border: 0;
@@ -3368,15 +3367,19 @@ td button {
   margin-bottom: 14px;
 }
 
-/* Desktop: form on the left, cart + checkout on the right */
+/* Desktop: form and cart side by side, with a full-width checkout below. */
 .pos {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 480px;
-  align-items: start;
+  grid-template-areas:
+    "main cart"
+    "checkout checkout";
+  align-items: stretch;
   gap: 20px;
 }
 
 .pos-main {
+  grid-area: main;
   min-width: 0;
   padding: 4px 20px 6px;
   background: var(--surface);
@@ -3591,9 +3594,7 @@ button.soft-btn:not(:disabled):hover {
 
 /* ---------- Cart (right column) ---------- */
 .pos-side {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 16px;
+  grid-area: cart;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -3601,6 +3602,10 @@ button.soft-btn:not(:disabled):hover {
 }
 
 .sale-cart {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
   padding: 16px;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -3635,9 +3640,9 @@ button.soft-btn:not(:disabled):hover {
 /* The JS still renders a 7-column table; here each row becomes a compact
    card: name + total + delete on top, quantity / price / discounts below. */
 .cart-list {
-  /* keep the checkout card on screen on a 768px-high laptop */
-  max-height: 46vh;
-  max-height: max(170px, calc(100vh - 590px));
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: none;
   margin: 0;
   overflow-y: auto;
   background: none;
@@ -3787,6 +3792,8 @@ button.soft-btn:not(:disabled):hover {
 
 .sale-cart.is-empty .cart-empty {
   display: flex;
+  flex: 1;
+  justify-content: center;
   -webkit-animation: fadeIn 0.3s ease;
   animation: fadeIn 0.3s ease;
 }
@@ -3833,16 +3840,40 @@ button.soft-btn:not(:disabled):hover {
   box-shadow: 0 18px 36px -18px rgba(21, 29, 49, 0.6);
 }
 
-.pos-side .checkout-bar {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  padding: 16px;
+.pos > .checkout-bar {
+  grid-area: checkout;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(150px, 0.6fr) minmax(220px, 1fr);
+  grid-template-areas:
+    "summary total action"
+    "summary hint hint";
+  align-items: center;
+  gap: 8px 24px;
+  width: 100%;
 }
 
-.pos-side .checkout-bar__total {
+.pos > .checkout-bar .bill-summary {
+  grid-area: summary;
+  width: 100%;
+  margin: 0;
+}
+
+.pos > .checkout-bar .checkout-bar__total {
+  grid-area: total;
+}
+
+.pos > .checkout-bar .checkout-bar__btn {
+  grid-area: action;
+  width: 100%;
+}
+
+.pos > .checkout-bar .checkout-hint {
+  grid-area: hint;
+}
+
+.pos > .checkout-bar .checkout-bar__total {
   flex-direction: row;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
 }
 
@@ -4124,11 +4155,11 @@ button.checkout-bar__btn .ripple,
 }
 
 /* Nothing to bill yet: dim the button and say why */
-.sale-cart.is-empty + .checkout-bar .checkout-hint {
+.pos:has(.sale-cart.is-empty) > .checkout-bar .checkout-hint {
   display: block;
 }
 
-.sale-cart.is-empty + .checkout-bar .checkout-bar__btn {
+.pos:has(.sale-cart.is-empty) > .checkout-bar .checkout-bar__btn {
   opacity: 0.6;
   box-shadow: none;
 }
@@ -6914,6 +6945,8 @@ input[type="number"] {
 
   .sale-cart {
     order: 3;
+    flex: initial;
+    min-height: initial;
   }
 
   .pos-section--payment {
@@ -6921,6 +6954,8 @@ input[type="number"] {
   }
 
   .cart-list {
+    flex: initial;
+    min-height: initial;
     max-height: none;
   }
 
@@ -6936,19 +6971,20 @@ input[type="number"] {
       0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 
-  .pos-side .checkout-bar {
+  .pos > .checkout-bar {
+    display: flex;
     flex-direction: row;
     align-items: center;
     padding: 12px 12px 12px 16px;
   }
 
-  .pos-side .checkout-bar__total {
+  .pos > .checkout-bar .checkout-bar__total {
     flex-direction: column;
     align-items: flex-start;
   }
 
   .bill-summary,
-  .sale-cart.is-empty + .checkout-bar .checkout-hint {
+  .pos:has(.sale-cart.is-empty) > .checkout-bar .checkout-hint {
     display: none;
   }
 }
@@ -7142,8 +7178,7 @@ input[type="number"] {
   }
 
   .checkout-bar,
-  .total-row-container,
-  .pos-side .checkout-bar {
+  .total-row-container {
     padding: 10px 10px 10px 16px;
   }
 

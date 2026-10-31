@@ -530,12 +530,8 @@ function renderWhatsappMessage(number, selectedItem) {
 
   billMessage += `*Grand Total: ₹${grandTotal.toFixed(2)}*\n\n`;
   if (grandTotal > 0) {
-    let link =
-      "upi://pay?pa=vyapar.173204529590@hdfcbank&am=" +
-      grandTotal.toFixed(2) +
-      "&cu=INR";
-
-    billMessage += "\n💳 *Pay Now:*\n" + link + "\n\n";
+    let link = "vyapar.173204529590@hdfcbank";
+    billMessage += "\n💳 *Pay Now:* \n" + link + "\n\n";
   }
   billMessage += `Chant and be Happy!\n🛍️ Hare Krishna 🛍️`;
 
@@ -623,11 +619,8 @@ function renderKhataBookWhatsappMessage(number, selectedItem, userName) {
   billMessage += "\n\n📞 *For any queries, contact us. 9205581666*";
 
   if (finalTotalBalance > 0) {
-    let link =
-      "upi://pay?pa=vyapar.173204529590@hdfcbank&am=" +
-      finalTotalBalance +
-      "&cu=INR";
-    billMessage += "\n💳 *Pay Now:* (" + link + ")\n\n";
+    let link = "vyapar.173204529590@hdfcbank";
+    billMessage += "\n💳 *Pay Now:* \n" + link + "\n\n";
   }
 
   billMessage += "\n *Hare Krishna !*";
